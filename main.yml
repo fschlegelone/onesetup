@@ -50,15 +50,15 @@
   tasks:
 
   roles:
+    - { role: git, tags: ["git"] }
+    - { role: apps, tags: ["apps"] }
     - { role: ssh, tags: ["ssh"] }
     - { role: shell, tags: ["shell"] }
     - { role: alacritty, tags: ["alacritty"] }
-    - { role: git, tags: ["git"] }
     - { role: nvim, tags: ["nvim"] }
     - { role: starship, tags: ["starship"] }
     - { role: fonts, tags: ["fonts"] }
     - { role: browser, tags: ["browser"] }
     - { role: twm, tags: ["twm"] }
     - { role: keymaps, tags: ["keymaps"] }
-    - { role: apps, tags: ["apps"] }
     - { role: settings, tags: ["settings"] }
