@@ -108,7 +108,7 @@ function install() {
   # install onesetup binary to /usr/local/bin
   [ -f "/usr/local/bin/onesetup" ] && sudo rm -f "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary cleanup" # remove onesetup binary if exists
   [ -f "${ONESETUP}/bin/onesetup" ] || (echo -e "${I_ERR}onesetup ==> binary not found, please re-run the onesetup installation script" && exit 1)
-  sudo cp "${ONESETUP}/bin/onesetup" "/usr/local/bin/onesetup" && sudo chown "$USER" && sudo chmod 755 "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary installed" || (echo -e "${I_ERR}onesetup ==> failed to install binary" && exit 1)
+  sudo cp "${ONESETUP}/bin/onesetup" "/usr/local/bin/onesetup" && sudo chown "$USER" "/usr/local/bin/onesetup" && sudo chmod 755 "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary installed" || (echo -e "${I_ERR}onesetup ==> failed to install binary" && exit 1)
 }
 
 
