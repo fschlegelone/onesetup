@@ -97,9 +97,6 @@ function pre_install() {
   # ensure git is installed
   command -v git &> /dev/null && echo -e "${I_OK}already installed ==> git" || (brew install --quiet git && echo -e "${I_DONE}installed ==> git (brew version)")
 
-  # ensure shc is installed
-  command -v shc &> /dev/null && echo -e "${I_OK}already installed ==> shc" || (brew install --quiet shc && echo -e "${I_DONE}installed ==> shc")
-
   # ensure ansible is installed
   command -v ansible &> /dev/null && echo -e "${I_OK}already installed ==> ansible" || (brew install --quiet ansible && echo -e "${I_DONE}installed ==> ansible")
 }
@@ -110,8 +107,8 @@ function install() {
   git clone --quiet "$GH_REPO_HTTPS" "$ONESETUP" && echo -e "${I_DONE} onesetup ==> repository cloned" && echo -e "${I_GO}onesetup ==> running ansible playbook" || ( echo -e "${I_ERR}onesetup ==> failed to clone repository" && exit 1 )
   # install onesetup binary to /usr/local/bin
   [ -f "/usr/local/bin/onesetup" ] && sudo rm -f "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary cleanup" # remove onesetup binary if exists
-  [ -f "${ONESETUP}/bin/onesetup" ] || (echo -e "${I_ERR}onesetup ==> binary not found" && exit 1)
-  sudo shc -f "${ONESETUP}/bin/onesetup" -o "/usr/local/bin/onesetup"
+  [ -f "${ONESETUP}/bin/onesetup" ] || (echo -e "${I_ERR}onesetup ==> binary not found, please re-run the onesetup installation script" && exit 1)
+  sudo cp "${ONESETUP}/bin/onesetup" "/usr/local/bin/onesetup" && sudo chown "$USER" && sudo chmod 755 "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary installed" || (echo -e "${I_ERR}onesetup ==> failed to install binary" && exit 1)
 }
 
 
