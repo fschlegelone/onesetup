@@ -1,0 +1,41 @@
+# -- IMPORT CONFIG FILES -- #
+import = [
+  "~/.config/alacritty/onetheme_alacritty.toml",
+  "~/.config/alacritty/styling.toml",
+]
+# -- GENERAL -- #
+
+[env]
+# environment variables
+SHELL = "/opt/homebrew/bin/zsh" # setting this envvar avoids conflicts with the shell program setting
+TERM = "xterm-256color"
+
+[shell]
+# shell options
+program = "/opt/homebrew/bin/zsh" # shell program to run (set to avoid conflicts with the SHELL envvar)
+args = ["--login", "-i"]           # -i: interactive --login: login shell
+# args = ["-i"]                    # -i: interactive
+
+# -- USER INTERFACE -- #
+
+[window]
+# window appearance
+startup_mode = "Windowed"  # "Windowed" | "Maximized" | "Fullscreen"
+decorations = "Buttonless" # "Buttonless" | "Full" | "None"
+padding.x = 20
+padding.y = 20
+opacity = 0.8              # transparency
+blur = true                # background blur
+title = "TERMINAL"         # text displayed on window's titlebar (hidden in Buttonless mode)
+
+# should be under [keyboard] imo, but whatever
+option_as_alt = "OnlyRight" # "No" | "OnlyRight" | "OnlyLeft" | "Yes"
+
+[font]
+# font family, style, and size for normal text
+normal = { family = "ShureTechMono Nerd Font Mono", style = "Regular" } # nerdfont to display icons
+size = 17
+
+# -- KEYBINDINGS -- #
+[keyboard]
+bindings = []

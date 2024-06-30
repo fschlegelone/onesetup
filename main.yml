@@ -1,0 +1,105 @@
+---
+- name: Automated MacOS Setup
+  hosts: localhost
+  connection: local
+
+  # TODO: pre_tasks debian
+  # TODO: pre_tasks arch
+  # TODO: pre_tasks windows
+
+  pre_tasks:
+    # -- INCLUDE GROUP_VARS -- #
+    # all / common
+    - name: "group_vars | all"
+      vars_files:
+        - group_vars/common/all.yml
+        - group_vars/common/env.yml
+        - group_vars/common/ssh.yml
+
+    # osx / macos
+    - name: "group_vars | osx"
+      vars_files:
+        - group_vars/osx/brew_taps.yml
+        - group_vars/osx/brew_formulaes.yml
+        - group_vars/osx/brew_casks.yml
+        - group_vars/osx/customize.yml
+      when: ansible_os_family == "Darwin"
+
+    # linux / fedora
+    - name: "group_vars | fedora"
+      vars_files:
+        - group_vars/fedora/tbd1.yml
+        - group_vars/fedora/tbd2.yml
+      when: ansible_os_family == "RedHat"
+
+    # -- INCLUDE PRE_TASKS -- #
+    # all / common
+    - name: "pre_tasks | all/common"
+      import_tasks:
+        - pre_tasks/common/main.yml
+        - pre_tasks/common/roles.yml
+    # osx / macos
+    - name: "osx pre_tasks"
+      import_tasks:
+        - pre_tasks/osx/main.yml
+        - pre_tasks/osx/tbd.yml
+      when: ansible_os_family == "Darwin"
+    # linux / fedora
+    - name: "pre_tasks | fedora"
+      import_tasks:
+        - pre_tasks/fedora/tbd1.yml
+        - pre_tasks/fedora/tbd2.yml
+      when: ansible_os_family == "RedHat"
+
+  tasks:
+    # -- INCLUDE ROLES TASKS -- #
+    - name: "Include role tasks dynamically"
+      with_fileglob:
+        - roles/*
+      loop_control:
+        loop_var: role_dir
+      tasks:
+        - name: "Include main.yml if exists"
+          include_tasks: "{{ item }}/tasks/main.yml"
+          when: main_yml.stat.exists
+          with_items:
+            - "{{ role_dir }}"
+          loop_control:
+            loop_var: item
+          args:
+            stat: true
+          register: main_yml
+
+        - name: "Include OS-specific tasks if exist"
+          include_tasks: "{{ item.path }}"
+          when:
+            - os_task.stat.exists
+            - item.condition
+          with_items:
+            - {
+                path: "{{ role_dir }}/tasks/osx.yml",
+                condition: ansible_os_family == 'Darwin',
+              }
+            - {
+                path: "{{ role_dir }}/tasks/fedora.yml",
+                condition: ansible_os_family == 'RedHat',
+              }
+          loop_control:
+            loop_var: item
+          args:
+            stat: true
+          register: os_task
+
+  roles:
+    - { role: ssh, tags: ["ssh"] }
+    - { role: shell, tags: ["shell"] }
+    - { role: alacritty, tags: ["alacritty"] }
+    - { role: git, tags: ["git"] }
+    - { role: nvim, tags: ["nvim"] }
+    - { role: starship, tags: ["starship"] }
+    - { role: fonts, tags: ["fonts"] }
+    - { role: browser, tags: ["browser"] }
+    - { role: twm, tags: ["twm"] }
+    - { role: keymaps, tags: ["keymaps"] }
+    - { role: apps, tags: ["apps"] }
+    - { role: settings, tags: ["settings"] }

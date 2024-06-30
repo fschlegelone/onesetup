@@ -1,0 +1,203 @@
+#!/usr/bin/env bash
+set -euo pipefail # exit on error, undefined variables and failed commands in pipes
+
+# -- VARIABLES -- #
+# colors
+C_BLACK='\033[1;30m'
+C_RED='\033[1;31m'
+C_GREEN='\033[1;32m'
+C_YELLOW='\033[1;33m'
+C_BLUE='\033[1;34m'
+C_PURPLE='\033[1;35m'
+C_CYAN='\033[1;36m'
+C_WHITE='\033[1;37m'
+C_GRAY='\033[1;34m'
+C_RESET='\033[0m'
+# prompts
+I_SKIP="${C_BLACK}[${C_CYAN} SKIP ${C_BLACK}] ${C_RESET}" # skipped
+I_OK="${C_BLACK}[${C_GREEN}  OK  ${C_BLACK}] ${C_RESET}" # ok
+I_DONE="${C_BLACK}[${C_GREEN} DONE ${C_BLACK}] ${C_RESET}" # success
+I_IMP="${C_BLACK}[${C_RED}  !!  ${C_BLACK}] ${C_RESET}" # important
+I_ERR="${C_BLACK}[${C_RED} ERR! ${C_BLACK}] ${C_RESET}" # error
+I_EX="${C_BLACK}[${C_RED} EXIT ${C_BLACK}] ${C_RESET}" # script exit
+I_WAR="${C_BLACK}[${C_YELLOW} WARN ${C_BLACK}] ${C_RESET}" # warning
+I_INFO="${C_BLACK}[${C_PURPLE} INFO ${C_BLACK}] ${C_RESET}" # information
+I_GO="${C_BLACK}[${C_CYAN}  GO.. ${C_BLACK}] ${C_RESET}" # starting
+I_ASK="${C_BLACK}[${C_BLUE}  ?  ${C_BLACK}] ${C_RESET}" # ask user for input
+I_YN="${C_BLACK}[${C_BLUE} y/n ${C_BLACK}] ${C_RESET}" # ask user for yes/no
+# directories
+ONE="/opt/one"
+ONESETUP="${ONE}/onesetup"
+ONEVAULT="${ONE}/onevault"
+# urls
+GH_REPO_NAME="fschlegelone/onesetup"
+GH_REPO_URL="https://github.com/${GH_REPO_NAME}"
+GH_REPO_HTTPS="https://github.com/${GH_REPO_NAME}.git"
+GH_REPO_SSH="git@github.com:${GH_REPO_NAME}.git"
+GH_REPO_RAW="https://raw.githubusercontent.com/${GH_REPO_NAME}/main"
+
+# -- SUDO -- #
+echo -e "${I_INFO}this script requires sudo privileges. you will be asked for your password."
+echo -e "${I_INFO}no worries, the password isn’t stored in a variable for security reasons - instead, sudo -v keeps the sudo session active while the script runs"
+echo -e "${I_IMP}do not trust me! this project is open source & you can review the code on github to see what it does (https://github.com/fschlegelone/onesetup)"
+sudo -v # ask for sudo password up-front
+# keep sudo alive
+( while true; do sudo -v; sleep 60; done ) &
+
+# -- FUNCTIONS -- #
+# ensure prerequisites met
+function pre_install() {
+  # -- environment variables -- #
+  # homebrew environment variables
+  export HOMEBREW_SUDO_THROUGH_SUDO_USER # use sudo user context (instead of root) for installing homebrew
+  export NONINTERACTIVE=1
+  export HOMEBREW_NO_ANALYTICS
+  export HOMEBREW_LOGS="${ONE}/logs/onesetup_homebrew.log"
+  # ansible environment variables
+  export ANSIBLE_INVENTORY="${ONESETUP}/inventory.ini"
+  export ANSIBLE_CONFIG="${ONESETUP}/ansible.cfg"
+  # customization environment variables
+
+  # ensure xcode cli tools are installed
+  if ! xcode-select -p &> /dev/null; then
+      echo -e "${I_GO}xcode-commandline-tools ==> installing"
+      touch "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress" # create temp file prompting 'softwareupdate' to list xct
+      XCT=$(softwareupdate -l | grep "\*.*Command Line" | tail -n 1 | sed 's/^[^C]* //') # find latest xct version
+      softwareupdate -i "$XCT" --verbose # install xct
+  else
+      echo -e "${I_DONE}xcode-commandline-tools ==> installed"
+  fi
+
+  # ensure git authenticates over https and not ssh (that no ssh key is required)
+  [ -n "$(git config --global --get url.git@github.com:.insteadOf)" ] \
+  && { echo -e "${I_INFO} git is configured to use ssh. this will be temporary unset to use https instead (no worries, it'll be restored after the installation is done)"
+  git config --global --unset-all "url.git@github.com:.insteadOf" && restore_git="true"; } \
+  || { echo -e "${I_OK} git is configured to use https. no changes needed"; restore_git="false"; }
+
+  # ensure homebrew is installed
+  [ -d "/opt/homebrew" ] && echo -e "${I_OK}homebrew ==> already installed" || (echo -e "${I_ERR}homebrew ==> not installed" && HOMEBREW_NO_ENV_HINTS=1 NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
+  && echo -e "${I_DONE}installed ==> homebrew")
+  # ensure homebrew is in path
+  command -v brew &> /dev/null && echo -e "${I_OK}is in PATH ==> homebrew" || (echo -e "${I_WAR}not in PATH ==> homebrew" && echo -e "${I_INFO}the script can still run, because its temporary initializing homebrew. TEMPORARY!"\
+  && echo -e "${I_INFO}check out the homebrew installation guide to see how to permanently add brew to your PATH (https://docs.brew.sh/Installation)" \
+  && echo -e "${I_INFO}${C_GREEN}SPOILER${C_RESET} ==> you need to add the following line to your shell config file (~/.zprofile for zsh, ~/.bash_profile for bash)" \
+  && echo -ne "${I_INFO}${C_GREEN}" && echo -ne 'eval "$(/opt/homebrew/bin/brew shellenv)"') && echo -e "${C_RESET} \n"
+
+  # initialize & update homebrew (only for the script)
+  eval "$(/opt/homebrew/bin/brew shellenv)" && brew update --force --quiet
+
+  # ensure grep is installed (gnu version)
+  command -v ggrep &> /dev/null && echo -e "${I_OK}already installed ==> grep (gnu version)" || (brew install --quiet grep && echo -e "${I_DONE}installed ==> grep (gnu version)")
+
+  # ensure zsh is installed (brew version)
+  command -v zsh &> /dev/null && echo -e "${I_OK}already installed ==> zsh" || (brew install --quiet zsh && echo -e "${I_DONE}installed ==> zsh")
+  [ -n "$(brew ls --formulae | ggrep "^zsh$")" ] && echo -e "${I_OK}already installed ==> zsh (brew version)" || (brew install --quiet zsh && echo -e "${I_DONE}installed ==> zsh (brew version)")
+
+  # ensure bash is installed (brew version)
+  command -v bash &> /dev/null && echo -e "${I_OK}already installed ==> bash" || (brew install --quiet bash && echo -e "${I_DONE}installed ==> bash")
+  [ -n "$(brew ls --formulae | ggrep "^bash$")" ] && echo -e "${I_OK}already installed ==> bash (brew version)" || (brew install --quiet bash && echo -e "${I_DONE}installed ==> bash (brew version)")
+
+  # ensure git is installed
+  command -v git &> /dev/null && echo -e "${I_OK}already installed ==> git" || (brew install --quiet git && echo -e "${I_DONE}installed ==> git (brew version)")
+
+  # ensure ansible is installed
+  command -v ansible &> /dev/null && echo -e "${I_OK}already installed ==> ansible" || (brew install --quiet ansible && echo -e "${I_DONE}installed ==> ansible")
+}
+
+function install() {
+  echo -e "${I_GO}installing ==> !!!!!!!!!"
+}
+
+
+function check_installation() {
+  # Initialize variables
+  overwrite_onesetup=""
+  initial_install="false"
+
+  # -- CHECK DIRECTORIES -- #
+  # /opt/one
+  [ -d "$ONE" ] && echo -e "${I_OK}/opt/one ==> directory already exists" && one_dir_exist="true" || (sudo mkdir -p "$ONE" && echo -e "${I_DONE}/opt/one ==> directory created" && one_dir_exist="false")
+  # /opt/one/onesetup
+  [ -d "$ONESETUP" ] && echo -e "${I_OK}/opt/one/onesetup ==> directory already exists" && onesetup_dir_exist="true" || (sudo mkdir -p "$ONESETUP" && echo -e "${I_DONE}/opt/one/onesetup ==> directory created" && onesetup_dir_exist="false")
+  # /opt/one/onevault
+  [ -d "$ONEVAULT" ] && echo -e "${I_OK}/opt/one/onevault ==> directory already exists" && onevault_dir_exist="true" || (sudo mkdir -p "$ONEVAULT" && echo -e "${I_DONE}/opt/one/onevault ==> directory created" && onevault_dir_exist="false")
+
+  # prompt user to overwrite onesetup installation
+  if [ "$onesetup_dir_exist" == "true" ]; then
+    echo -e "${I_WAR}onesetup ==> directory already exists"
+    echo -e "${I_YN} do you want to overwrite the installation? (y/n)" && read -r overwrite_onesetup
+  else
+    echo -e "${I_OK}onesetup ==> directory does not exist yet. installation will continue"
+    initial_install="true"
+  fi
+
+  # -- check git repository before overwriting -- #
+  # check if onesetup is a git repository
+  if [ -d "${ONESETUP}/.git" ]; then
+    echo -e "${I_OK}onesetup ==> git repository detected"
+  else
+    initial_install="true"
+    echo -e "${I_WAR}onesetup ==> not a git repository" && echo -e "${I_GO}overwriting installation"
+  fi
+  # exit function if initial install
+  if [ "$initial_install" == "true" ]; then
+    install && return
+  fi
+
+  if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" && "$initial_install" != "true" ]]; then
+    # check for local changes that are not added
+    if git diff --quiet "${ONESETUP}"; then
+      echo -e "${I_OK}onesetup ==> no local changes"
+    else
+      echo -e "${I_WAR}onesetup ==> local changes detected that are not added to git"
+      echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
+    fi
+
+    # check for untracked files
+    if [ -z "$(git status --porcelain "${ONESETUP}")" ]; then
+      echo -e "${I_OK}onesetup ==> no untracked files"
+    else
+      echo -e "${I_WAR}onesetup ==> untracked files detected"
+      echo -e "${I_YN} are you really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
+    fi
+
+    # check for added files that are not committed
+    if git diff --cached --quiet "${ONESETUP}"; then
+      echo -e "${I_OK}onesetup ==> no added files that are not committed"
+    else
+      echo -e "${I_WAR}onesetup ==> added files that are not committed"
+      echo -e "${I_YN} are you really really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
+    fi
+
+    # check for committed files that are not pushed
+    if [ -z "$(git cherry)" ]; then
+      echo -e "${I_OK}onesetup ==> no committed files that are not pushed"
+    else
+      echo -e "${I_WAR}onesetup ==> committed files that are not pushed"
+      echo -e "${I_YN} are you really really really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
+    fi
+
+    if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]]; then
+      echo -e "${I_OK} seems you are really really sure. okay let's do it!"
+      install
+    fi
+  else
+    # exit if user entered 'n' or anything else
+    echo -e "${I_ERR}onesetup ==> installation aborted"
+    exit 1
+  fi
+}
+
+function post_install() {
+  # restore git authentication over ssh
+  [ "$restore_git" == "true" ] && git config --global "url.git@github.com:.insteadOf" "https://github.com/" && echo -e "${I_DONE}restored ==> git authentication over ssh"
+}
+
+pre_install \
+&& check_installation \
+&& post_install \
+&& exit 0 # exit script with success code

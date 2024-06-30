@@ -1,0 +1,20 @@
+---
+- name: "ensure fonts directory exists"
+  file:
+    path: "{{ H_HOME }}/Library/Fonts"
+    state: directory
+
+- name: "get all nerdfont .ttf files"
+  find:
+    paths: "{{ role_path }}/files"
+    recurse: true
+    patterns: "*.ttf"
+  register: fonts
+
+- name: "install nerdfont .ttf files"
+  copy:
+    src: "{{ item.path }}"
+    dest: "{{ H_HOME }}/Library/Fonts"
+    force: true
+  loop: "{{ fonts.files }}"
+  no_log: true

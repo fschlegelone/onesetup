@@ -1,0 +1,99 @@
+# Colors
+# RED = "#F38BA8"
+# Mauve: #CBA6F7
+# Lavender: #B4BEFE
+# Teal: #94E2D5
+# Base: #1E1E2E (text color)
+# Yellow: #F9E2AF
+
+#-- OPTIONS --#
+"$schema" = 'https://starship.rs/config-schema.json'
+add_newline = true
+# 
+#-- PROMPT --#
+format = """
+[](#F38BA8)\
+$username\
+[](bg:#CBA6F7 fg:#F38BA8)\
+$directory\
+[](bg:#B4BEFE fg:#CBA6F7)\
+$git_branch\
+$git_status\
+[](bg:#94E2D5 fg:#B4BEFE)\
+$python\
+$lua\
+$rust\
+$c\
+$java\
+$nodejs\
+$terraform\
+[](#94E2D5)\
+
+\n$character
+"""
+
+#-- SECTIONS --#
+
+[character]
+success_symbol = '[ 󱞩](bold #cba6f7)' # teal
+error_symbol = '[ 󱞩](bold #F38BA8)'   # red
+
+[username]
+# bg: Red | fg: Base
+show_always = true
+style_user = "bg:#F38BA8 fg:#1E1E2E"
+style_root = "bg:#F38BA8 fg:#1E1E2E"
+format = '[$user ]($style)'
+disabled = false
+
+[directory]
+# bg: Mauve | fg: Base
+style = "bg:#CBA6F7 fg:#1E1E2E"
+format = "[ $path ]($style)"
+truncation_length = 1
+truncation_symbol = "…/"
+[directory.substitutions]
+"Documents" = "󰈙 "
+"Downloads" = " "
+"Music" = " "
+"Pictures" = " "
+
+[git_branch]
+# bg: Lavender | fg: Base
+symbol = ""
+style = "bg:#B4BEfE fg:#1E1E2E"
+format = '[ $symbol $branch ]($style)'
+[git_status]
+style = "bg:#B4BEfE fg:#1E1E2E"
+format = '[$all_status$ahead_behind ]($style)'
+
+[python]
+format = '[${symbol} ($version)(\($virtualenv\) )]($style)'
+symbol = " "
+style = "bg:#94E2D5 fg:#1E1E2E"
+version_format = "${major}.${minor} "
+pyenv_prefix = "pyenv"
+python_binary = "python"
+[lua]
+format = '[ $symbol ]($style)'
+symbol = ""
+style = "bg:#94E2D5 fg:#1E1E2E"
+[rust]
+format = '[ $symbol ($version) ]($style)'
+symbol = ""
+style = "bg:#94E2D5 fg:#1E1E2E"
+[c]
+format = '[ $symbol ($version) ]($style)'
+symbol = ""
+style = "bg:#94E2D5 fg:#1E1E2E"
+[java]
+format = '[ $symbol ($version) ]($style)'
+symbol = ""
+style = "bg:#94E2D5 fg:#1E1E2E"
+[nodejs]
+format = '[ $symbol ($version) ]($style)'
+symbol = ""
+style = "bg:#94E2D5 fg:#1E1E2E"
+[terraform]
+symbol = "󱁢"
+style = "bg:#94E2D5 fg:#1E1E2E"

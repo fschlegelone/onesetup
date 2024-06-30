@@ -1,0 +1,12 @@
+---
+- name: "cleanup config directory (avoids conflicts)"
+  ansible.builtin.file:
+    path: "{{ XDG_CONFIG_HOME }}/nvim"
+    state: absent
+
+- name: "symlink config directory"
+  ansible.builtin.file:
+    src: "{{ role_path }}/files"
+    path: "{{ XDG_CONFIG_HOME }}/nvim"
+    state: link
+    force: true

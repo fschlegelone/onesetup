@@ -1,0 +1,47 @@
+---
+- name: "ensure directory exists"
+  file:
+    mode: "0700"
+    path: "{{ ansible_user_dir }}/.ssh"
+    state: "directory"
+
+- name: "copy public keys"
+  copy:
+    dest: "{{ ansible_user_dir }}/.ssh/{{ ssh_public_keys_item.key }}"
+    content: "{{ ssh_public_keys_item.value }}"
+    mode: "0644"
+  no_log: true
+  loop_control:
+    loop_var: ssh_public_keys_item
+  with_items: "{{ ssh_public_keys | default({}) | dict2items }}"
+
+- name: "copy private keys"
+  copy:
+    dest: "{{ ansible_user_dir }}/.ssh/{{ ssh_private_keys_item.key }}"
+    content: "{{ ssh_private_keys_item.value }}"
+    mode: "0600"
+  no_log: true
+  loop_control:
+    loop_var: ssh_private_keys_item
+  with_items: "{{ ssh_private_keys | default({}) | dict2items }}"
+
+- name: "copy config"
+  copy:
+    src: "config"
+    dest: "{{ ansible_user_dir }}/.ssh/config"
+    mode: "0644"
+  no_log: true
+
+- name: "copy known_hosts"
+  copy:
+    src: "known_hosts"
+    dest: "{{ ansible_user_dir }}/.ssh/known_hosts"
+    mode: "0644"
+  no_log: true
+
+- name: "copy authorized_keys"
+  copy:
+    src: "authorized_keys"
+    dest: "{{ ansible_user_dir }}/.ssh/authorized_keys"
+    mode: "0600"
+  no_log: true

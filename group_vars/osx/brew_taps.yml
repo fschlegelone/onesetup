@@ -1,0 +1,6 @@
+---
+brew_taps:
+  - azure/functions
+  - FelixKratz/formulae
+  - koekeishiya/formulae
+  - hashicorp/tap

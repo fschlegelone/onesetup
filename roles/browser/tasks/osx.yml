@@ -1,0 +1,4 @@
+---
+# set defaultbrowser via installed utility
+- name: "set firefox as default browser"
+  command: defaultbrowser firefoxdeveloperedition

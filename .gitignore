@@ -1,0 +1,9 @@
+.DS_Store
+vault.secret
+sudo.secret
+onesetup.secret
+.env
+.env.local
+.env.dev
+.env.prod
+.nvimlog

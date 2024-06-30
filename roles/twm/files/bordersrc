@@ -1,0 +1,10 @@
+#!/bin/bash
+
+options=(
+  style=round # round, square
+  width=4.0 # width in points
+  hidpi=on # draw border with retina resolution
+  active_color=0xffb4befe # hex_rgba
+  inactive_color=0xff45475a # hex_rgba
+)
+borders "${options[@]}"

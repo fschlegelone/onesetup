@@ -1,0 +1,34 @@
+---
+- name: "ensure yabai directory exists"
+  file:
+    path: "{{ ansible_env.HOME }}/.config/yabai"
+    state: directory
+    mode: "0700"
+    force: true
+
+- name: "ensure borders directory exists"
+  file:
+    path: "{{ ansible_env.HOME }}/.config/yabai/borders"
+    state: directory
+    mode: "0700"
+    force: true
+
+- name: "symlink yabai config"
+  file:
+    src: "yabairc"
+    dest: "{{ ansible_env.HOME }}/.config/yabai/yabairc"
+    state: link
+    follow: false
+    mode: "0600"
+    owner: "{{ ansible_env.USER }}"
+    force: true
+
+- name: "symlink borders config"
+  file:
+    src: "bordersrc"
+    dest: "{{ ansible_env.HOME }}/.config/borders/bordersrc"
+    state: link
+    follow: false
+    mode: "0600"
+    owner: "{{ ansible_env.USER }}"
+    force: true

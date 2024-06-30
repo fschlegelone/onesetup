@@ -1,0 +1,35 @@
+---
+brew_casks:
+  - alacritty # terminal emulator
+  - kitty # terminal emulator
+  - alt-tab # alt-tab replacement
+  - appcleaner # app uninstaller
+  - chatgpt
+  - github # github desktop app
+  - cleanshot # screenshot tool (paid)
+  - deepl
+  - discord
+  - session # onion routed messenger
+  - tor-browser # onion routed browser (firefox fork)
+  - firefox@developer-edition
+  - gimp # image editor
+  - git-credential-manager # required by git for https auth.
+  - keepassxc # password manager (.kdbx based)
+  - paintbrush # paint
+  - pdfelement # pdf editor (paid)
+  - postman # api tool
+  - proton-drive
+  - proton-mail
+  - protonvpn
+  - raycast # spotlight replacement
+  - spaceman # menubar spaces info
+  - spotify
+  - utm # virtual machine manager
+  - zed # IDE similar to vscode
+  - sublime-text # light weight text editor
+  - league-of-legends
+  - wireshark
+  - canva
+  - figma
+  - arc # chromium based browser
+  - balenaetcher # os image writer

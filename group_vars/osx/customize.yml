@@ -1,0 +1,11 @@
+---
+configure_dock: true
+dockitems_remove:
+  - Notes
+  - Contacts
+  - Launchpad
+  - Safari
+dockitems_persist:
+  - name: "KeePassXC"
+    path: "/Applications/KeePassXC.app"
+    pos: 1

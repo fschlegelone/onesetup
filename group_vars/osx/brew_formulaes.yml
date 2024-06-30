@@ -1,0 +1,101 @@
+---
+brew_formulaes:
+  # -- LANGUAGES -- #
+  - typescript
+  - go
+  - ruby
+  - rust
+  - sqlite
+  - postgresql@14
+  - ansible
+  - terraform
+  - bc # numeric processing language
+  - lua
+  - node # node.js
+
+  # -- LANGUAGE SERVERS -- #
+  - tree-sitter # not a lsp, but required by LSPs
+  - bash-language-server
+  - typescript-language-server
+  - terraform-ls
+
+  # -- LINTER & FORMATTER -- #
+  - prettier # javascript formatter
+  - ruff # python formatter & linter
+  - shellcheck # shell linter
+  - stylua # lua formatter
+  - tflint # terraform linter
+  # -- ANALYZER & SCANNER -- #
+  - tfsec # terraform vulnerability scanner
+  - rust-analyzer # rust code analyzer
+  # -- MANAGERS -- #
+  - asdf # version manager for many languages (ruby, node, go, powershell, elixir, erlang, ...)
+  - pnpm # better npm
+  - pyenv # python version manager
+  - pyenv-virtualenv # python virtual environment manager
+
+  # -- LINUX UTILITIES -- #
+  - coreutils # gnu utilities
+  - gnutls # gnu utilities
+  - gawk # awk (gnu version)
+  - git # git (gnu version)
+  - gnu-sed # sed (gnu version)
+  - gnu-tar # tar (gnu version)
+  - gnupg # gpg (gnu version)
+  - grep # grep (gnu version)
+  - iproute2mac # linux ip commands for macos (iproute2)
+
+  # -- COMPILER, INTERPRETER, PARSER, .. -- #
+  - cmake
+  - cmake-docs
+  - xz # compression tool
+  - sha2 # sha256sum
+  - openssh # replace built-in | ssh
+  - openssl@3 # replace built-in | ssl
+  - jq # json parser
+
+  # -- SHELL -- #
+  - bash # bash (brew version)
+  - zsh # zsh (brew version)
+  - fish # fish (brew version)
+  - powershell # microsoft powershell
+  - azure-cli # cli for azure
+  - azure-functions-core-tools@4 # azure functions
+  - zsh-autocomplete
+  - zsh-fast-syntax-highlighting # better version of zsh-syntax-highlighting
+  - zsh-autosuggestions
+
+  # -- TOOLS -- #
+  - neovim # IDE (vim fork)
+  - vim
+  - defaultbrowser # utility to set default browser
+  - tlrc # simplified man pages
+  - catimg # ascii image preview
+  - cheat # cheatsheet engine
+  - fontconfig
+  - bat # better cat
+  - fastfetch # system info
+  - zellij # terminal multiplexer (tmux alternative)
+  - telnet
+  - netcat
+  - zoxide # better cd
+  - speedtest-cli
+  - wireshark
+  - tree
+  - wget
+  - xclip # clipboard manager
+  - svgo # svg optimizer
+  - starship
+  - ripgrep
+  - pastel # color cli tool
+  - lazygit # git cli tool
+  - xsv # csv cli
+  - yabai # tiling window manager
+  - skhd # shortcut daemon
+  - borders # window borders
+  - eza # better ls
+  - fd # better find
+  - fzf # fuzzy finder
+  - docker # containerize tool (like podman but worse
+  - podman # containerize tool
+  - kubectl # kubernetes cli

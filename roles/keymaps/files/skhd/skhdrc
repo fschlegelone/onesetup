@@ -1,0 +1,40 @@
+# -- YABAI -- #
+
+# Focus: window
+ctrl - h : yabai -m window --focus west # focus left window
+ctrl - j : yabai -m window --focus south # focus bottom window
+ctrl - k : yabai -m window --focus north # focus top window
+ctrl - l : yabai -m window --focus east # focus right window
+# Focus: display
+ctrl - 1 : yabai -m display --focus west # focus left screen
+ctrl - 2 : yabai -m display --focus east # focus right screen
+
+# Window: Resize
+ctrl - right : yabai -m window --resize right:+100:0
+ctrl - left : yabai -m window --resize right:-100:0
+ctrl - down : yabai -m window --resize bottom:0:+100
+ctrl - up : yabai -m window --resize bottom:0:-100
+
+cmd + ctrl - m : yabai -m window --toggle zoom-fullscreen # maximize a window
+cmd + ctrl - b : yabai -m space --balance # balance windows
+
+# Window: Swap
+cmd + ctrl - h : yabai -m window --swap west
+cmd + ctrl - j : yabai -m window --swap south
+cmd + ctrl - k : yabai -m window --swap north
+cmd + ctrl - l : yabai -m window --swap east
+
+# Layout
+# float out of layout
+cmd + ctrl - f : yabai -m window --toggle float --grid 4:4:1:1:2:2 
+# flip layout
+cmd + ctrl - y : yabai -m space --mirror y-axis # flip along y-axis
+cmd + ctrl - x : yabai -m space --mirror x-axis # flip along x-axis
+
+# Move windows (between displays)
+cmd + ctrl - 1 : yabai -m window --display 1
+cmd + ctrl - 2 : yabai -m window --display 2
+cmd + ctrl - 3 : yabai -m window --display 3
+
+# Move windows (between spaces)
+

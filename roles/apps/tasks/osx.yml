@@ -1,0 +1,35 @@
+---
+- name: "include variables containing taps, formulaes & casks"
+  include_vars: "{{ item }}"
+  with_items:
+    - "{{ role_path }}/vars/taps.yml"
+    - "{{ role_path }}/vars/formulaes.yml"
+    - "{{ role_path }}/vars/casks.yml"
+
+- name: "tap repositories"
+  community.general.homebrew_tap:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ brew_taps }}"
+
+- name: "install formulaes"
+  community.general.homebrew:
+    name: "{{ item }}"
+    state: latest
+    upgrade_all: false # brew updates / upgrades are handled seperately by a pre_task & post_task
+    install_options:
+      - quiet
+  loop: "{{ brew_formulaes }}"
+
+- name: "install casks"
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+    state: latest
+    accept_external_apps: true
+    greedy: true
+    install_options:
+      - quiet
+    sudo_password: "{{ ansible_become_pass }}"
+    upgrade_all: false # done by brew pre_task & post_task
+  loop: "{{ brew_casks }}"
+  ignore_errors: true

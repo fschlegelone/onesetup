@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+
+# -- VARIABLES -- #
+# colors
+C_BLACK='\033[1;30m'
+C_RED='\033[1;31m'
+C_GREEN='\033[1;32m'
+C_YELLOW='\033[1;33m'
+C_BLUE='\033[1;34m'
+C_PURPLE='\033[1;35m'
+C_CYAN='\033[1;36m'
+C_WHITE='\033[1;37m'
+C_GRAY='\033[1;34m'
+C_RESET='\033[0m'
+# status messages
+I_SKIP="${C_BLACK}[${C_CYAN} SKIP ${C_BLACK}] ${C_RESET}" # skipped
+I_OK="${C_BLACK}[${C_GREEN} OK ${C_BLACK}] ${C_RESET}" # success
+I_DONE="${C_BLACK}[${C_GREEN} DONE ${C_BLACK}] ${C_RESET}" # completed
+I_ERR="${C_BLACK}[${C_RED} ERR ${C_BLACK}] ${C_RESET}" # error
+I_EXIT="${C_BLACK}[${C_RED} EXIT ${C_BLACK}] ${C_RESET}" # exit
+I_WARN="${C_BLACK}[${C_RED} WARN ${C_BLACK}] ${C_RESET}" # warning
+I_INFO="${C_BLACK}[${C_PURPLE}  i  ${C_BLACK}] ${C_RESET}" # information
+I_LOAD="${C_BLACK}[${C_CYAN} ... ${C_BLACK}] ${C_RESET}" # loading
+I_ASK="${C_BLACK}[${C_BLUE}  ?  ${C_BLACK}] ${C_RESET}" # prompt
+I_YN="${C_BLACK}[${C_BLUE}  Y/N  ${C_BLACK}] ${C_RESET}" # prompt yes/no
+# repository
+GH_USER="fschlegelone"
+GH_REPO="onesetup"
+GH_BRANCH="master"
+GH_URL="https://github.com/${GH_USER}/${GH_REPO}"
+GH_URL_HTTPS="${GH_URL}.git"
+GH_URL_SSH="git@github.com:${GH_USER}/${GH_REPO}.git"
+# directories
+ONE="/opt/one"
+ONEBIN="${ONE}/bin"
+ONESETUP="${ONE}/onesetup"
+ONEVAULT="${ONE}/onevault"
+
+
+# -- SCRIPT OPTIONS -- #
+set -e # Ensure script exits if command fails with non-zero exit code
+
+# keep sudo alive
+function sudo_active() {
+  # prompt for sudo password and validate the session
+  sudo -v
+
+  # Keep the sudo session alive
+  while true; do
+    sudo -n true
+    sleep 60
+    kill -0 "$$" || exit
+  done 2>/dev/null &
+}
+sudo_active
+
+# -- PRE_CHECKS -- #
+# Ensure prerequisites
+ensure_prereq() {
+  # User: check if root
+  if [[ $EUID -eq 0 ]]; then
+    echo -e "${I_ERR}installation can't be run as root"
+    echo -e "${I_EXIT}aborting onesetup installation..."
+    sleep 1 && exit 1
+  else
+    echo -e "${I_OK}installation is not run as root"
+  fi
+
+  # User: check sudo privileges
+  if sudo -n true 2>/dev/null; then
+    echo -e "${I_OK}user has sudo privileges"
+  else
+    echo -e "${I_ERR}sudo privileges are required"
+    echo -e "${I_EXIT}aborting onesetup installation..."
+    sleep 1 && exit 1
+  fi
+
+  # Homebrew: check installed
+  if [[ ! -d "/opt/homebrew" ]]; then
+    echo -e "${I_ERR}homebrew is not installed"
+    echo -e "${I_EXIT}aborting onesetup installation..."
+    sleep 1 && exit 1
+  else
+    echo -e "${I_OK}homebrew is installed"
+  fi
+
+  # Homebrew: check path
+  if ! command -v brew &> /dev/null; then
+    echo -e "${I_ERR}homebrew is installed but not in your PATH. Please refer to the homebrew installation guide."
+    echo -e "${I_EXIT}aborting onesetup installation..."
+    sleep 1 && exit 1
+  else
+    echo -e "${I_OK}homebrew is in your PATH"
+  fi
+
+  # Git: check installed
+  command -v git &> /dev/null &&  echo -e "${I_OK}git already installed" ||  brew install git && echo -e "${I_DONE}git has been installed"
+
+  # Ansible: check installed
+  if ! command -v ansible &> /dev/null; then
+    brew install ansible
+    echo -e "${I_DONE}ansible has been installed"
+  else
+    echo -e "${I_OK}ansible already installed"
+  fi
+}
+
+cleanup_onesetup(){
+  sudo rm -rf "${ONESETUP}"
+  echo -e "${I_DONE}onesetup installation cleaned up"
+}
+
+ensure_prereq
+check_onesetup

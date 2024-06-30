@@ -1,0 +1,18 @@
+---
+- name: "ensure directory"
+  file:
+    path: "{{ ansible_env.HOME }}/.config/starship"
+    state: directory
+    owner: "{{ ansible_env.USER }}"
+    mode: "0755"
+    force: true
+
+- name: "symlink config"
+  file:
+    src: "{{ role_path }}/files/starship.toml"
+    dest: "{{ ansible_env.HOME }}/.config/starship/starship.toml"
+    owner: "{{ ansible_env.USER }}"
+    mode: "0644"
+    state: link
+    follow: false
+    force: true

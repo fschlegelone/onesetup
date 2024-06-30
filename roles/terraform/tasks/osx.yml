@@ -1,0 +1,7 @@
+- name: "ensure tfenv config directory exists"
+  ansible.builtin.file:
+    state: directory
+    path: "{{ ansible_env.HOME }}/.config/tfenv"
+    owner: "{{ ansible_env.USER }}"
+    mode: "0755"
+    force: true
