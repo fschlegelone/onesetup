@@ -116,12 +116,29 @@ function check_installation() {
 
   # -- CHECK DIRECTORIES -- #
   # /opt/one
-  [ -d "$ONE" ] && echo -e "${I_OK}/opt/one ==> directory already exists" && one_dir_exist="true" || (sudo mkdir -p "$ONE" && echo -e "${I_DONE}/opt/one ==> directory created" && one_dir_exist="false")
+  if [ -d "$ONE" ]; then
+    one_dir_exist="true"
+    echo -e "${I_OK}/opt/one ==> directory already exists"
+  else
+    one_dir_exist="false"
+    sudo mkdir -p "$ONE" && echo -e "${I_DONE}/opt/one ==> directory created"
+  fi
   # /opt/one/onesetup
-  [ -d "$ONESETUP" ] && echo -e "${I_OK}/opt/one/onesetup ==> directory already exists" && onesetup_dir_exist="true" || (sudo mkdir -p "$ONESETUP" && echo -e "${I_DONE}/opt/one/onesetup ==> directory created" && onesetup_dir_exist="false")
+  if [ -d "$ONESETUP" ]; then
+    onesetup_dir_exist="true"
+    echo -e "${I_OK}/opt/one/onesetup ==> directory already exists"
+   else
+    onesetup_dir_exist="false"
+    sudo mkdir -p "$ONESETUP" && echo -e "${I_DONE}/opt/one/onesetup ==> directory created"
+  fi
   # /opt/one/onevault
-  [ -d "$ONEVAULT" ] && echo -e "${I_OK}/opt/one/onevault ==> directory already exists" && onevault_dir_exist="true" || (sudo mkdir -p "$ONEVAULT" && echo -e "${I_DONE}/opt/one/onevault ==> directory created" && onevault_dir_exist="false")
-
+  if [ -d "$ONEVAULT" ]; then
+    onevault_dir_exist="true"
+    echo -e "${I_OK}/opt/one/onevault ==> directory already exists"
+  else
+    onevault_dir_exist="false"
+    sudo mkdir -p "$ONEVAULT" && echo -e "${I_DONE}/opt/one/onevault ==> directory created"
+  fi
   # prompt user to overwrite onesetup installation
   if [ "$onesetup_dir_exist" == "true" ]; then
     echo -e "${I_WAR}onesetup ==> directory already exists"
