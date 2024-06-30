@@ -15,7 +15,7 @@
 
 ## Installation
 
-    "$SHELL" -c "$(curl -fsSL https://raw.githubusercontent.com/fschlegelone/onesetup/main/bin/onesetup)"
+    "bash" -c "$(curl -fsSL https://raw.githubusercontent.com/fschlegelone/onesetup/main/bin/install)"
 
 ## Roadmap
 
