@@ -22,7 +22,7 @@ I_ERR="${C_BLACK}[${C_RED} ERR! ${C_BLACK}] ${C_RESET}" # error
 I_EX="${C_BLACK}[${C_RED} EXIT ${C_BLACK}] ${C_RESET}" # script exit
 I_WAR="${C_BLACK}[${C_YELLOW} WARN ${C_BLACK}] ${C_RESET}" # warning
 I_INFO="${C_BLACK}[${C_PURPLE} INFO ${C_BLACK}] ${C_RESET}" # information
-I_GO="${C_BLACK}[${C_CYAN}  GO.. ${C_BLACK}] ${C_RESET}" # starting
+I_GO="${C_BLACK}[${C_CYAN}  GO  ${C_BLACK}] ${C_RESET}" # starting
 I_ASK="${C_BLACK}[${C_BLUE}  ?  ${C_BLACK}] ${C_RESET}" # ask user for input
 I_YN="${C_BLACK}[${C_BLUE} y/n ${C_BLACK}] ${C_RESET}" # ask user for yes/no
 # directories
@@ -106,6 +106,8 @@ function pre_install() {
 
 function install() {
   echo -e "${I_GO}installing ==> !!!!!!!!!"
+  [ -d "$ONESETUP" ] && sudo rm -rf "$ONESETUP" && echo -e "${I_DONE} onesetup ==> initial cleanup done" # remove onesetup directory if exists
+  git clone --quiet "$GH_REPO_HTTPS" "$ONESETUP" && echo -e "${I_DONE} onesetup ==> repository cloned" && echo -e "${I_GO}onesetup ==> running ansible playbook" || ( echo -e "${I_ERR}onesetup ==> failed to clone repository" && exit 1 )
 }
 
 
@@ -115,34 +117,22 @@ function check_installation() {
   initial_install="false"
 
   # -- CHECK DIRECTORIES -- #
-  # /opt/one
-  if [ -d "$ONE" ]; then
-    one_dir_exist="true"
-    echo -e "${I_OK}/opt/one ==> directory already exists"
-  else
-    one_dir_exist="false"
-    sudo mkdir -p "$ONE" && echo -e "${I_DONE}/opt/one ==> directory created"
-  fi
   # /opt/one/onesetup
   if [ -d "$ONESETUP" ]; then
     onesetup_dir_exist="true"
-    echo -e "${I_OK}/opt/one/onesetup ==> directory already exists"
    else
     onesetup_dir_exist="false"
-    sudo mkdir -p "$ONESETUP" && echo -e "${I_DONE}/opt/one/onesetup ==> directory created"
   fi
   # /opt/one/onevault
   if [ -d "$ONEVAULT" ]; then
     onevault_dir_exist="true"
-    echo -e "${I_OK}/opt/one/onevault ==> directory already exists"
   else
     onevault_dir_exist="false"
-    sudo mkdir -p "$ONEVAULT" && echo -e "${I_DONE}/opt/one/onevault ==> directory created"
   fi
   # prompt user to overwrite onesetup installation
   if [ "$onesetup_dir_exist" == "true" ]; then
     echo -e "${I_WAR}onesetup ==> directory already exists"
-    echo -e "${I_YN} do you want to overwrite the installation? (y/n)" && read -r overwrite_onesetup
+    initial_install="false"
   else
     echo -e "${I_OK}onesetup ==> directory does not exist yet. installation will continue"
     initial_install="true"
@@ -151,32 +141,25 @@ function check_installation() {
   # -- check git repository before overwriting -- #
   # check if onesetup is a git repository
   if [ -d "${ONESETUP}/.git" ]; then
+    initial_install="false"
     echo -e "${I_OK}onesetup ==> git repository detected"
+    echo -e "${I_YN} do you want to overwrite the installation? (y/n)" && read -r overwrite_onesetup
   else
     initial_install="true"
-    echo -e "${I_WAR}onesetup ==> not a git repository" && echo -e "${I_GO}overwriting installation"
+    echo -e "${I_IMP}onesetup ==> not a git repository. installation will be overwritten"
   fi
   # exit function if initial install
   if [ "$initial_install" == "true" ]; then
     install && return
   fi
 
-  if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" && "$initial_install" != "true" ]]; then
-    # check for local changes that are not added
-    if git diff --quiet "${ONESETUP}"; then
-      echo -e "${I_OK}onesetup ==> no local changes"
-    else
-      echo -e "${I_WAR}onesetup ==> local changes detected that are not added to git"
-      echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
-      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
-    fi
-
+  if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]]; then
     # check for untracked files
     if [ -z "$(git status --porcelain "${ONESETUP}")" ]; then
       echo -e "${I_OK}onesetup ==> no untracked files"
     else
       echo -e "${I_WAR}onesetup ==> untracked files detected"
-      echo -e "${I_YN} are you really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
       [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
     fi
 
@@ -185,7 +168,7 @@ function check_installation() {
       echo -e "${I_OK}onesetup ==> no added files that are not committed"
     else
       echo -e "${I_WAR}onesetup ==> added files that are not committed"
-      echo -e "${I_YN} are you really really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      echo -e "${I_YN} are you really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
       [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
     fi
 
@@ -194,7 +177,7 @@ function check_installation() {
       echo -e "${I_OK}onesetup ==> no committed files that are not pushed"
     else
       echo -e "${I_WAR}onesetup ==> committed files that are not pushed"
-      echo -e "${I_YN} are you really really really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      echo -e "${I_YN} are you really really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
       [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
     fi
 
