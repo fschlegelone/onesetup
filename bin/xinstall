@@ -115,7 +115,7 @@ function install() {
   # set ownership
   sudo chown -R "$USER" "$ONESETUP" && echo -e "${I_DONE}onesetup ==> ownership set" || { echo -e "${I_ERR}onesetup ==> failed to set ownership" && exit 1; }
   # set permissions
-  sudo chmod -R 500 "${ONESETUP}/bin" && \
+  sudo chmod -R 700 "${ONESETUP}/bin" && \
   sudo chmod 644 "${ONESETUP}/ansible.cfg" && \
   sudo chmod 644 "${ONESETUP}/inventory.ini" && \
   sudo chmod 644 "${ONESETUP}/main.yml" && \
