@@ -26,9 +26,9 @@ I_GO="${C_BLACK}[${C_CYAN}  GO  ${C_BLACK}] ${C_RESET}" # starting
 I_ASK="${C_BLACK}[${C_BLUE}  ?  ${C_BLACK}] ${C_RESET}" # ask user for input
 I_YN="${C_BLACK}[${C_BLUE} y/n ${C_BLACK}] ${C_RESET}" # ask user for yes/no
 # directories
-ONE="/opt/one"
-ONESETUP="${ONE}/onesetup"
-ONEVAULT="${ONE}/onevault"
+export ONE="/opt/one" && echo "$ONE"
+export ONESETUP="${ONE}/onesetup" && echo "$ONESETUP"
+export ONEVAULT="${ONE}/onevault" && echo "$ONEVAULT"
 
 
 # ansible environment variables
@@ -41,6 +41,6 @@ run_playbook() {
   # initialize homebrew
   eval "$(/opt/homebrew/bin/brew shellenv)"
   # run ansible playbook
-  ansible-playbook "${ONESETUP}/main.yml" --inventory "$ONESETUP/inventory.ini" --vault-password-file "$ONEVAULT/onesetup.crit" --ask-become-pass && echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
+  ansible-playbook "${ONESETUP}/main.yml" --inventory "${ONESETUP}/inventory.ini" --vault-password-file "${ONEVAULT}/onesetup.crit" --ask-become-pass && echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
 }
 run_playbook
