@@ -185,6 +185,9 @@ function post_install() {
     echo -e "${I_DONE}restored ==> git authentication over ssh"
   fi
 
+  # ensure ~/.config exists
+  [ ! -d "${HOME}/.config" ] && sudo mkdir "${HOME}/.config" && echo -e "${I_DONE} ~/.config ==> directory created"
+
   # cleanup global shell profile
   if [ -f "${ONESETUP}/roles/zsh/files/global_config/profile" ] && [ -f "/etc/profile" ]; then
     sudo rm -f "/etc/profile"
