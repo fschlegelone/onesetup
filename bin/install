@@ -109,7 +109,7 @@ function install() {
   # cleanup (if already there)
   [ -d "$ONESETUP" ] && sudo rm -rf "$ONESETUP" && echo -e "${I_DONE} onesetup ==> initial cleanup" # remove onesetup directory if exists
   # installation (clone from github)
-  git clone --quiet "$GH_REPO_HTTPS" "$ONESETUP" && echo -e "${I_DONE} onesetup ==> repository cloned" && echo -e "${I_GO}onesetup ==> running ansible playbook" || { echo -e "${I_ERR}onesetup ==> failed to clone repository" && exit 1; }
+  sudo git clone --quiet "$GH_REPO_HTTPS" "$ONESETUP" && echo -e "${I_DONE} onesetup ==> repository cloned" && echo -e "${I_GO}onesetup ==> running ansible playbook" || { echo -e "${I_ERR}onesetup ==> failed to clone repository" && exit 1; }
 
   # -- PERMISSIONS & OWNERSHIP -- #
   # set ownership
