@@ -113,12 +113,20 @@ function install() {
 
   # -- PERMISSIONS & OWNERSHIP -- #
   # set ownership
-  sudo chown "$USER" "$ONESETUP" -R && echo -e "${I_DONE}onesetup ==> ownership set" || { echo -e "${I_ERR}onesetup ==> failed to set ownership" && exit 1; }
+  sudo chown -R "$USER" "$ONESETUP" && echo -e "${I_DONE}onesetup ==> ownership set" || { echo -e "${I_ERR}onesetup ==> failed to set ownership" && exit 1; }
   # set permissions
+  sudo chmod -R 500 "${ONESETUP}/bin" && \
   sudo chmod 644 "${ONESETUP}/ansible.cfg" && \
   sudo chmod 644 "${ONESETUP}/inventory.ini" && \
   sudo chmod 644 "${ONESETUP}/main.yml" && \
-  find "$ONESETUP/roles" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
+  sudo chmod 644 "${ONESETUP}/requirements.yml" && \
+  sudo chmod 644 "${ONESETUP}/.gitignore" && \
+  sudo chmod 755 "${ONESETUP}/.yamllint" && \
+  sudo chmod 444 "${ONESETUP}/LICENSE" && \
+  sudo chmod 444 "${ONESETUP}/README.md" && \
+  find "$ONESETUP/group_vars" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \ # set permissions for all yml files in group_vars directory
+  find "$ONESETUP/pre_tasks" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \ # set permissions for all yml files in pre_tasks directory
+  find "$ONESETUP/roles" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \ # set permissions for all yml files in roles directory
   echo -e "${I_DONE}onesetup ==> permissions set" || { echo -e "${I_ERR}onesetup ==> failed to set permissions" && exit 1; }
 
   # -- ONESETUP BINARY -- #
