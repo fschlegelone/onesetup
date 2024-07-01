@@ -153,37 +153,17 @@ function check_installation() {
   if [ "$initial_install" == "true" ]; then
     install && return
   fi
-
-  if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]]; then
-    # check for untracked files
-    if [ -z "$(cd ${ONESETUP} && git status --porcelain)" ]; then
-      echo -e "${I_OK}onesetup ==> no untracked files"
-    else
-      echo -e "${I_WAR}onesetup ==> untracked files detected"
-      echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
-      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
-    fi
-
-    # check for added files that are not committed
-    if (cd "${ONESETUP}" && git diff --cached --quiet); then
-      echo -e "${I_OK}onesetup ==> no added files that are not committed"
-    else
-      echo -e "${I_WAR}onesetup ==> added files that are not committed"
-      echo -e "${I_YN} are you really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
-      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
-    fi
-
     # check for committed files that are not pushed
     if [ -z "$(cd $ONESETUP && git cherry)" ]; then
       echo -e "${I_OK}onesetup ==> no committed files that are not pushed"
     else
       echo -e "${I_WAR}onesetup ==> committed files that are not pushed"
-      echo -e "${I_YN} are you really really really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+      echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
       [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
     fi
-
+    # execute installation if user entered 'y'
     if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]]; then
-      echo -e "${I_OK} seems you are really really sure. okay let's do it!"
+      echo -e "${I_OK} seems you are really sure. let's do it!"
       install
     fi
   else
@@ -195,7 +175,10 @@ function check_installation() {
 
 function post_install() {
   # restore git authentication over ssh
-  [ "$restore_git" == "true" ] && git config --global "url.git@github.com:.insteadOf" "https://github.com/" && echo -e "${I_DONE}restored ==> git authentication over ssh"
+  if [[ "$restore_git" == "true" ]]; then
+    git config --global "url.git@github.com:.insteadOf" "https://github.com/" && echo -e "${I_DONE}restored ==> git authentication over ssh"
+  fi
+
 }
 
 pre_install \
