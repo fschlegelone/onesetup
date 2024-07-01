@@ -124,9 +124,9 @@ function install() {
   sudo chmod 755 "${ONESETUP}/.yamllint" && \
   sudo chmod 444 "${ONESETUP}/LICENSE" && \
   sudo chmod 444 "${ONESETUP}/README.md" && \
-  find "$ONESETUP/group_vars" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \ # set permissions for all yml files in group_vars directory
-  find "$ONESETUP/pre_tasks" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \ # set permissions for all yml files in pre_tasks directory
-  find "$ONESETUP/roles" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \ # set permissions for all yml files in roles directory
+  find "$ONESETUP/group_vars" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
+  find "$ONESETUP/pre_tasks" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
+  find "$ONESETUP/roles" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
   echo -e "${I_DONE}onesetup ==> permissions set" || { echo -e "${I_ERR}onesetup ==> failed to set permissions" && exit 1; }
 
   # -- ONESETUP BINARY -- #
