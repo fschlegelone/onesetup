@@ -148,11 +148,11 @@ function check_installation() {
 
   # -- CHECK DIRECTORIES -- #
   # /opt/one
-  [ -d "${ONE}" ] && sudo mkdir -p "${ONE}" && echo -e "${I_DONE}one ==> directory created"
-  # /opt/one/onesetup
-  [ -d "${ONESETUP}" ] && onesetup_dir_exist="true" || onesetup_dir_exist="false"
+  [ ! -d "${ONE}" ] && sudo mkdir -p "${ONE}" && echo -e "${I_DONE}/opt/one ==> directory created"
   # /opt/one/onevault
   [ ! -d "${ONEVAULT}" ] && sudo mkdir -p "${ONEVAULT}" && echo -e "${I_DONE}onevault ==> directory created"
+  # /opt/one/onesetup
+  [ ! -d "${ONESETUP}" ] && onesetup_dir_exist="false" || onesetup_dir_exist="true"
   # /opt/one/onevault/onesetup.secret
   if [ -f "${ONEVAULT}/onesetup.secret" ]; then
     sudo chown "$USER" "${ONEVAULT}/onesetup.secret" && sudo chmod 600 "${ONEVAULT}/onesetup.secret"
