@@ -1,12 +1,44 @@
 ---
+# -- CLEANUP -- #
 - name: "cleanup config directory (avoids conflicts)"
   ansible.builtin.file:
-    path: "{{ XDG_CONFIG_HOME }}/nvim"
+    path: "{{ H_XDG_CONFIG_HOME }}/nvim"
     state: absent
-
+    force: true
+# -- SYMLINK -- #
 - name: "symlink config directory"
   ansible.builtin.file:
     src: "{{ role_path }}/files"
-    path: "{{ XDG_CONFIG_HOME }}/nvim"
+    path: "{{ H_XDG_CONFIG_HOME }}/nvim"
     state: link
+    follow: false
     force: true
+# -- PERMISSIONS -- #
+- name: "set permissions - /nvim/*"
+  ansible.builtin.file:
+    path: "{{ H_XDG_CONFIG_HOME }}/nvim"
+    state: directory
+    mode: 0600
+    recurse: true
+    follow: true
+- name: "set permissions - /nvim"
+  ansible.builtin.file:
+    path: "{{ H_XDG_CONFIG_HOME }}/nvim"
+    state: directory
+    mode: 0700
+    recurse: false
+    follow: true
+- name: "set permissions - /nvim/lua"
+  ansible.builtin.file:
+    path: "{{ H_XDG_CONFIG_HOME }}/nvim/lua"
+    state: directory
+    mode: 0700
+    recurse: false
+    follow: true
+- name: "set permissions - /nvim/lua/plugins"
+  ansible.builtin.file:
+    path: "{{ H_XDG_CONFIG_HOME }}/nvim/lua/plugins"
+    state: directory
+    mode: 0700
+    recurse: false
+    follow: true

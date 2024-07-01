@@ -1,3 +1,4 @@
+---
 # -- SSH CONFIG -- #
 config: !vault |
   $ANSIBLE_VAULT;1.2;AES256;onesetup

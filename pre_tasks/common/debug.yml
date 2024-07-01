@@ -1,0 +1,7 @@
+---
+# - name: "print all available facts"
+#   ansible.builtin.debug:
+#     var: ansible_facts
+- name: "print ansible variables gathered by shell environment"
+  debug:
+    msg: "$USER: {{ H_USER }}, $HOME: {{ H_HOME }}, $XDG_CONFIG_HOME: {{ H_XDG_CONFIG_HOME }}, $ZDOTDIR: {{ H_ZDOTDIR }}"

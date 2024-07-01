@@ -2,54 +2,53 @@
 # -- -- -- -- -- -- -- -- #
 # --   MAIN PLAYBOOK   -- #
 - name: "onesetup"
-  # connection
+  # -- CONNECTION -- #
   hosts: localhost
   connection: local
-  # variables
+  # -- VARIABLES -- #
+  vars:
+    H_USER: "{{ lookup('ansible.builtin.env', 'USER') }}"
+    H_HOME: "{{ lookup('ansible.builtin.env', 'HOME') }}"
+    H_XDG_CONFIG_HOME: "{{ lookup('ansible.builtin.env', 'XDG_CONFIG_HOME') | default(lookup('ansible.builtin.env', 'HOME') + '/.config/') }}"
+    H_ZDOTDIR: "{{ lookup('ansible.builtin.env', 'ZDOTDIR') | default(lookup('ansible.builtin.env', 'HOME') + '/.config/zsh') }}"
   vars_files:
     - group_vars/all/all.yml
-    - group_vars/all/env.yml
     - group_vars/all/ssh.yml
-  # privilege escalation
-  become: true
-  become_method: sudo
-  become_user: "{{ H_USER }}"
-  # pre tasks (running before the roles)
   pre_tasks:
+    # -- INCLUDE PRE_TASKS -- #
+    # common
+    - name: "pre_tasks | common - main"
+      include_tasks: pre_tasks/common/main.yml
+    - name: "pre_tasks | common - debug"
+      include_tasks: pre_tasks/common/debug.yml
+    # osx
+    - name: "pre_tasks | osx - main"
+      include_tasks: pre_tasks/osx/main.yml
+      when: ansible_os_family == "Darwin"
+    - name: "pre_tasks | osx - tbd"
+      include_tasks: pre_tasks/osx/tbd.yml
+      when: ansible_os_family == "Darwin"
+    # fedora
+    - name: "pre_tasks | fedora - tbd1"
+      include_tasks: pre_tasks/fedora/tbd1.yml
+      when: ansible_os_family == "RedHat"
+    - name: "pre_tasks | fedora - tbd2"
+      include_tasks: pre_tasks/fedora/tbd2.yml
+      when: ansible_os_family == "RedHat"
     # -- INCLUDE GROUP_VARS -- #
-    # osx / macos
+    # macos
     - name: "group_vars | osx"
       include_vars:
         dir: group_vars/osx
         extensions:
           - yml
-          - yaml
       when: ansible_os_family == "Darwin"
-    # linux / fedora
+    # fedora linux
     - name: "group_vars | fedora"
       include_vars:
         dir: group_vars/fedora
         extensions:
           - yml
-          - yaml
-      when: ansible_os_family == "RedHat"
-    # -- INCLUDE PRE_TASKS -- #
-    # common
-    - name: "pre_tasks | common main"
-      include_tasks: pre_tasks/common/main.yml
-    # osx
-    - name: "osx pre_tasks main"
-      include_tasks: pre_tasks/osx/main.yml
-      when: ansible_os_family == "Darwin"
-    - name: "osx pre_tasks tbd"
-      include_tasks: pre_tasks/osx/tbd.yml
-      when: ansible_os_family == "Darwin"
-    # fedora
-    - name: "pre_tasks | fedora tbd1"
-      include_tasks: pre_tasks/fedora/tbd1.yml
-      when: ansible_os_family == "RedHat"
-    - name: "pre_tasks | fedora tbd2"
-      include_tasks: pre_tasks/fedora/tbd2.yml
       when: ansible_os_family == "RedHat"
   # -- INCLUDE ROLES -- #
   # order of the roles is important (e.g: environment variables need to be set by zsh role before other roles use them)
