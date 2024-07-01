@@ -147,6 +147,8 @@ function check_installation() {
   initial_install="false"
 
   # -- CHECK DIRECTORIES -- #
+  # /opt/one
+  [ -d "${ONE}" ] && sudo mkdir -p "${ONE}" && echo -e "${I_DONE}one ==> directory created"
   # /opt/one/onesetup
   [ -d "${ONESETUP}" ] && onesetup_dir_exist="true" || onesetup_dir_exist="false"
   # /opt/one/onevault
