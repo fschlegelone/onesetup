@@ -1,11 +1,4 @@
 ---
-- name: "include variables containing taps, formulaes & casks"
-  include_vars: "{{ item }}"
-  with_items:
-    - "{{ role_path }}/vars/taps.yml"
-    - "{{ role_path }}/vars/formulaes.yml"
-    - "{{ role_path }}/vars/casks.yml"
-
 - name: "tap repositories"
   community.general.homebrew_tap:
     name: "{{ item }}"
