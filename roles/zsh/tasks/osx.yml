@@ -57,7 +57,7 @@
 - name: "cleanup zsh_config_dir"
   ansible.builtin.file:
     state: absent
-    path: "{{ ansible_env.ZDOTDIR | default(ansible_env.HOME + '/.config/zsh') }}"
+    path: "{{ H_ZDOTDIR }}"
     force: true
 
 # -- SYMLINK ZSH CONFIG FILES -- #

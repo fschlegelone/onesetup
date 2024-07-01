@@ -10,7 +10,7 @@ export HOSTNAME="mac-one"
 export USR="$USER"
 
 # -- XDG VARIABLES -- #
-export XDG_CONFIG_HOME="$HOME/.config"
+# export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_CACHE_HOME="$HOME/.cache"
@@ -20,10 +20,7 @@ export NAS="$HOME/nas"
 export DEV="/opt/dev"
 export GH="$HOME/github"
 export NOTES="$NAS/notes"
-
 export APPSUP="$HOME/Library/Application Support"
-export ZSH_DIR="$XDG_CONFIG_HOME/zsh"
-export ZDOTDIR="$HOME"
 
 # -- NEOVIM -- # 
 export NVIMPAGER_NVIM="/opt/homebrew/bin/nvim"
