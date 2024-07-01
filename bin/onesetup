@@ -3,16 +3,7 @@ set -euo pipefail # exit on error, undefined variables and failed commands in pi
 
 # -- VARIABLES -- #
 # colors
-C_BLACK='\033[1;30m'
-C_RED='\033[1;31m'
-C_GREEN='\033[1;32m'
-C_YELLOW='\033[1;33m'
-C_BLUE='\033[1;34m'
-C_PURPLE='\033[1;35m'
-C_CYAN='\033[1;36m'
-C_WHITE='\033[1;37m'
-C_GRAY='\033[1;34m'
-C_RESET='\033[0m'
+C_BLACK='\033[1;30m' ; C_RED='\033[1;31m' ; C_GREEN='\033[1;32m' ; C_YELLOW='\033[1;33m' ; C_BLUE='\033[1;34m' ; C_PURPLE='\033[1;35m' ; C_CYAN='\033[1;36m' ; C_WHITE='\033[1;37m' ; C_GRAY='\033[1;34m' ; C_RESET='\033[0m'
 # prompts
 I_SKIP="${C_BLACK}[${C_CYAN} SKIP ${C_BLACK}] ${C_RESET}" # skipped
 I_OK="${C_BLACK}[${C_GREEN}  OK  ${C_BLACK}] ${C_RESET}" # ok
@@ -26,11 +17,9 @@ I_GO="${C_BLACK}[${C_CYAN}  GO  ${C_BLACK}] ${C_RESET}" # starting
 I_ASK="${C_BLACK}[${C_BLUE}  ?  ${C_BLACK}] ${C_RESET}" # ask user for input
 I_YN="${C_BLACK}[${C_BLUE} y/n ${C_BLACK}] ${C_RESET}" # ask user for yes/no
 # directories
-export ONE="/opt/one" && echo "$ONE"
-export ONESETUP="${ONE}/onesetup" && echo "$ONESETUP"
-export ONEVAULT="${ONE}/onevault" && echo "$ONEVAULT"
-
-
+export ONE="/opt/one"
+export ONESETUP="${ONE}/onesetup"
+export ONEVAULT="${ONE}/onevault"
 # ansible environment variables
 export ANSIBLE_INVENTORY="${ONESETUP}/inventory.ini"
 export ANSIBLE_CONFIG="${ONESETUP}/ansible.cfg"
@@ -41,6 +30,6 @@ run_playbook() {
   # initialize homebrew
   eval "$(/opt/homebrew/bin/brew shellenv)"
   # run ansible playbook
-  ansible-playbook "${ONESETUP}/main.yml" --ask-become-pass && echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
+  ansible-playbook "${ONESETUP}/main.yml" --ask-become-pass --vault-password-file "${ONEVAULT}/onesetup.secret" && echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
 }
 run_playbook

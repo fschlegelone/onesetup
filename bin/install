@@ -57,28 +57,29 @@ function pre_install() {
 
   # ensure xcode cli tools are installed
   if ! xcode-select -p &> /dev/null; then
-      echo -e "${I_GO}xcode-commandline-tools ==> installing"
-      touch "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress" # create temp file prompting 'softwareupdate' to list xct
-      XCT=$(softwareupdate -l | grep "\*.*Command Line" | tail -n 1 | sed 's/^[^C]* //') # find latest xct version
-      softwareupdate -i "$XCT" --verbose # install xct
+    echo -e "${I_GO}xcode-commandline-tools ==> installing"
+    touch "/tmp/.com.apple.dt.CommandLineTools.installondemand.in-progress" # create temp file prompting 'softwareupdate' to list xct
+    XCT=$(softwareupdate -l | grep "\*.*Command Line" | tail -n 1 | sed 's/^[^C]* //') # find latest xct version
+    softwareupdate -i "$XCT" --verbose # install xct
   else
-      echo -e "${I_DONE}xcode-commandline-tools ==> installed"
+    echo -e "${I_DONE}xcode-commandline-tools ==> installed"
   fi
 
   # ensure git authenticates over https and not ssh (that no ssh key is required)
   [ -n "$(git config --global --get url.git@github.com:.insteadOf)" ] \
   && { echo -e "${I_INFO} git is configured to use ssh. this will be temporary unset to use https instead (no worries, it'll be restored after the installation is done)"
-  git config --global --unset-all "url.git@github.com:.insteadOf" && restore_git="true"; } \
+       git config --global --unset-all "url.git@github.com:.insteadOf" && restore_git="true"; } \
   || { echo -e "${I_OK} git is configured to use https. no changes needed"; restore_git="false"; }
 
   # ensure homebrew is installed
-  [ -d "/opt/homebrew" ] && echo -e "${I_OK}homebrew ==> already installed" || (echo -e "${I_ERR}homebrew ==> not installed" && HOMEBREW_NO_ENV_HINTS=1 NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" \
-  && echo -e "${I_DONE}installed ==> homebrew")
+  [ -d "/opt/homebrew" ] && echo -e "${I_OK}homebrew ==> already installed" || { echo -e "${I_ERR}homebrew ==> not installed"
+       HOMEBREW_NO_ENV_HINTS=1 NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && echo -e "${I_DONE}installed ==> homebrew"; }
   # ensure homebrew is in path
-  command -v brew &> /dev/null && echo -e "${I_OK}is in PATH ==> homebrew" || (echo -e "${I_WAR}not in PATH ==> homebrew" && echo -e "${I_INFO}the script can still run, because its temporary initializing homebrew. TEMPORARY!"\
-  && echo -e "${I_INFO}check out the homebrew installation guide to see how to permanently add brew to your PATH (https://docs.brew.sh/Installation)" \
-  && echo -e "${I_INFO}${C_GREEN}SPOILER${C_RESET} ==> you need to add the following line to your shell config file (~/.zprofile for zsh, ~/.bash_profile for bash)" \
-  && echo -ne "${I_INFO}${C_GREEN}" && echo -ne 'eval "$(/opt/homebrew/bin/brew shellenv)"') && echo -e "${C_RESET} \n"
+  command -v brew &> /dev/null && echo -e "${I_OK}is in PATH ==> homebrew" || { echo -e "${I_WAR}not in PATH ==> homebrew"
+       echo -e "${I_INFO}the script can still run, because its temporary initializing homebrew. TEMPORARY!"
+       echo -e "${I_INFO}check out the homebrew installation guide to see how to permanently add brew to your PATH (https://docs.brew.sh/Installation)"
+       echo -e "${I_INFO}${C_GREEN}SPOILER${C_RESET} ==> you need to add the following line to your shell config file (~/.zprofile for zsh, ~/.bash_profile for bash)"
+       echo -ne "${I_INFO}${C_GREEN}" && echo -ne 'eval "$(/opt/homebrew/bin/brew shellenv)"' && echo -e "${C_RESET} \n"; }
 
   # initialize & update homebrew (only for the script)
   eval "$(/opt/homebrew/bin/brew shellenv)" && brew update --force --quiet
@@ -108,27 +109,35 @@ function install() {
   # cleanup (if already there)
   [ -d "$ONESETUP" ] && sudo rm -rf "$ONESETUP" && echo -e "${I_DONE} onesetup ==> initial cleanup" # remove onesetup directory if exists
   # installation (clone from github)
-  git clone --quiet "$GH_REPO_HTTPS" "$ONESETUP" && echo -e "${I_DONE} onesetup ==> repository cloned" && echo -e "${I_GO}onesetup ==> running ansible playbook" || ( echo -e "${I_ERR}onesetup ==> failed to clone repository" && exit 1 )
+  git clone --quiet "$GH_REPO_HTTPS" "$ONESETUP" && echo -e "${I_DONE} onesetup ==> repository cloned" && echo -e "${I_GO}onesetup ==> running ansible playbook" || { echo -e "${I_ERR}onesetup ==> failed to clone repository" && exit 1; }
 
   # -- PERMISSIONS & OWNERSHIP -- #
   # set ownership
-  sudo chown "$USER" "$ONESETUP" -R && echo -e "${I_DONE}onesetup ==> ownership set" || (echo -e "${I_ERR}onesetup ==> failed to set ownership" && exit 1)
+  sudo chown -R "$USER" "$ONESETUP" && echo -e "${I_DONE}onesetup ==> ownership set" || { echo -e "${I_ERR}onesetup ==> failed to set ownership" && exit 1; }
   # set permissions
+  sudo chmod -R 700 "${ONESETUP}/bin" && \
   sudo chmod 644 "${ONESETUP}/ansible.cfg" && \
   sudo chmod 644 "${ONESETUP}/inventory.ini" && \
   sudo chmod 644 "${ONESETUP}/main.yml" && \
+  sudo chmod 644 "${ONESETUP}/requirements.yml" && \
+  sudo chmod 644 "${ONESETUP}/.gitignore" && \
+  sudo chmod 755 "${ONESETUP}/.yamllint" && \
+  sudo chmod 444 "${ONESETUP}/LICENSE" && \
+  sudo chmod 444 "${ONESETUP}/README.md" && \
+  find "$ONESETUP/group_vars" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
+  find "$ONESETUP/pre_tasks" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
   find "$ONESETUP/roles" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
-  echo -e "${I_DONE}onesetup ==> permissions set" || (echo -e "${I_ERR}onesetup ==> failed to set permissions" && exit 1)
+  echo -e "${I_DONE}onesetup ==> permissions set" || { echo -e "${I_ERR}onesetup ==> failed to set permissions" && exit 1; }
 
   # -- ONESETUP BINARY -- #
   # remove onesetup binary if exists
   [ -f "/usr/local/bin/onesetup" ] && sudo rm -f "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary cleanup"
   # check if source binary exists
-  [ -f "${ONESETUP}/bin/onesetup" ] || (echo -e "${I_ERR}onesetup ==> binary not found, please re-run the onesetup installation script" && exit 1)
+  [ -f "${ONESETUP}/bin/onesetup" ] || { echo -e "${I_ERR}onesetup ==> binary not found, please re-run the onesetup installation script" && exit 1; }
   # ensure target bin directory exists (/usr/local/bin)
-  [ -d "/usr/local/bin" ] && echo -e "${I_OK} /usr/local/bin ==> exists" || (echo -e "${I_ERR} /usr/local/bin ==> doesn't exist" && sudo mkdir -p "/usr/local/bin" && echo -e "${I_DONE} /usr/local/bin ==> created")
+  [ -d "/usr/local/bin" ] && echo -e "${I_OK} /usr/local/bin ==> exists" || { echo -e "${I_ERR} /usr/local/bin ==> doesn't exist" && sudo mkdir -p "/usr/local/bin" && echo -e "${I_DONE} /usr/local/bin ==> created"; }
   # copy onesetup binary to /usr/local/bin
-  sudo cp "${ONESETUP}/bin/onesetup" "/usr/local/bin/onesetup" && sudo chown "$USER" "/usr/local/bin/onesetup" && sudo chmod 755 "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary installed" || (echo -e "${I_ERR}onesetup ==> failed to install binary" && exit 1)
+  sudo cp "${ONESETUP}/bin/onesetup" "/usr/local/bin/onesetup" && sudo chown "$USER" "/usr/local/bin/onesetup" && sudo chmod 755 "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary installed" || { echo -e "${I_ERR}onesetup ==> failed to install binary" && exit 1; }
 }
 
 
@@ -139,65 +148,29 @@ function check_installation() {
 
   # -- CHECK DIRECTORIES -- #
   # /opt/one/onesetup
-  if [ -d "$ONESETUP" ]; then
-    onesetup_dir_exist="true"
-   else
-    onesetup_dir_exist="false"
-  fi
+  [ -d "$ONESETUP" ] && onesetup_dir_exist="true" || onesetup_dir_exist="false"
   # /opt/one/onevault
-  if [ -d "$ONEVAULT" ]; then
-    onevault_dir_exist="true"
-  else
-    onevault_dir_exist="false"
-  fi
+  [ -d "$ONEVAULT" ] && onevault_dir_exist="true" || onevault_dir_exist="false"
   # prompt user to overwrite onesetup installation
-  if [ "$onesetup_dir_exist" == "true" ]; then
-    echo -e "${I_WAR}onesetup ==> directory already exists"
-    initial_install="false"
-  else
-    echo -e "${I_OK}onesetup ==> directory does not exist yet. installation will continue"
-    initial_install="true"
-  fi
+  [ "$onesetup_dir_exist" == "true" ] && { echo -e "${I_WAR}onesetup ==> directory already exists"; initial_install="false"; } \
+  || { echo -e "${I_OK}onesetup ==> directory does not exist yet. installation will continue"; initial_install="true"; }
 
   # -- check git repository before overwriting -- #
   # check if onesetup is a git repository
-  if [ -d "${ONESETUP}/.git" ]; then
-    initial_install="false"
-    echo -e "${I_OK}onesetup ==> git repository detected"
-    echo -e "${I_YN} do you want to overwrite the installation? (y/n)" && read -r overwrite_onesetup
-  else
-    initial_install="true"
-    echo -e "${I_IMP}onesetup ==> not a git repository. installation will be overwritten"
-  fi
+  [ -d "${ONESETUP}/.git" ] && { initial_install="false"; echo -e "${I_OK}onesetup ==> git repository detected"; echo -e "${I_YN} do you want to overwrite the installation? (y/n)" && read -r overwrite_onesetup; } \
+  || { initial_install="true"; echo -e "${I_IMP}onesetup ==> not a git repository. installation will be overwritten"; }
   # exit function if initial install
-  if [ "$initial_install" == "true" ]; then
-    install && return
-  fi
-    # check for committed files that are not pushed
-  if [ -z "$(cd $ONESETUP && git cherry)" ]; then
-    echo -e "${I_OK}onesetup ==> no committed files that are not pushed"
-  else
-    echo -e "${I_WAR}onesetup ==> committed files that are not pushed"
-    echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
-    [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
-  fi
+  [ "$initial_install" == "true" ] && install && return
+  # check for committed files that are not pushed
+  [ -z "$(cd "$ONESETUP" && git cherry)" ] && echo -e "${I_OK}onesetup ==> no committed files that are not pushed" || { echo -e "${I_WAR}onesetup ==> committed files that are not pushed"; echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup; [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1; }
   # execute installation if user entered 'y'
-  if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]]; then
-    echo -e "${I_OK} seems you are really sure. let's do it!"
-    install
-  # exit if user entered 'n' or anything else
-  else
-    echo -e "${I_ERR}onesetup ==> installation aborted"
-    exit 1
-  fi
+  [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]] && { echo -e "${I_OK} seems you are really sure. let's do it!"; install; } \
+  || { echo -e "${I_ERR}onesetup ==> installation aborted"; exit 1; }
 }
 
 function post_install() {
   # restore git authentication over ssh
-  if [[ "$restore_git" == "true" ]]; then
-    git config --global "url.git@github.com:.insteadOf" "https://github.com/" && echo -e "${I_DONE}restored ==> git authentication over ssh"
-  fi
-
+  [ "$restore_git" == "true" ] && git config --global "url.git@github.com:.insteadOf" "https://github.com/" && echo -e "${I_DONE}restored ==> git authentication over ssh"
 }
 
 pre_install \
