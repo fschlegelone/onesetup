@@ -154,20 +154,19 @@ function check_installation() {
     install && return
   fi
     # check for committed files that are not pushed
-    if [ -z "$(cd $ONESETUP && git cherry)" ]; then
-      echo -e "${I_OK}onesetup ==> no committed files that are not pushed"
-    else
-      echo -e "${I_WAR}onesetup ==> committed files that are not pushed"
-      echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
-      [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
-    fi
-    # execute installation if user entered 'y'
-    if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]]; then
-      echo -e "${I_OK} seems you are really sure. let's do it!"
-      install
-    fi
+  if [ -z "$(cd $ONESETUP && git cherry)" ]; then
+    echo -e "${I_OK}onesetup ==> no committed files that are not pushed"
   else
-    # exit if user entered 'n' or anything else
+    echo -e "${I_WAR}onesetup ==> committed files that are not pushed"
+    echo -e "${I_YN} are you really sure to overwrite? (y/n)" && read -r overwrite_onesetup
+    [ "$overwrite_onesetup" == "n" ] && echo -e "${I_ERR}onesetup ==> installation aborted" && exit 1 # exit if user enters 'n'
+  fi
+  # execute installation if user entered 'y'
+  if [[ "$overwrite_onesetup" == "y" || "$overwrite_onesetup" == "Y" ]]; then
+    echo -e "${I_OK} seems you are really sure. let's do it!"
+    install
+  # exit if user entered 'n' or anything else
+  else
     echo -e "${I_ERR}onesetup ==> installation aborted"
     exit 1
   fi
