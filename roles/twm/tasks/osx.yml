@@ -1,34 +1,30 @@
 ---
-- name: "ensure yabai directory exists"
+# -- CLEANUP -- #
+# cleanup yabai directory
+- name: "cleanup - yabai directory"
   file:
-    path: "{{ ansible_env.HOME }}/.config/yabai"
-    state: directory
-    mode: "0700"
+    path: "{{ H_XDG_CONFIG_HOME }}/yabai"
+    state: absent
+    force: true
+# cleanup borders directory
+- name: "cleanup - borders directory"
+  file:
+    path: "{{ H_XDG_CONFIG_HOME }}/borders"
+    state: absent
     force: true
 
-- name: "ensure borders directory exists"
+# -- SYMLINK -- #
+# symlink yabai directory
+- name: "symlink - yabai directory"
   file:
-    path: "{{ ansible_env.HOME }}/.config/yabai/borders"
-    state: directory
-    mode: "0700"
-    force: true
-
-- name: "symlink yabai config"
-  file:
-    src: "yabairc"
-    dest: "{{ ansible_env.HOME }}/.config/yabai/yabairc"
+    src: "{{ role_path }}/files/yabai"
+    dest: "{{ H_XDG_CONFIG_HOME }}/yabai"
     state: link
-    follow: false
-    mode: "0600"
-    owner: "{{ ansible_env.USER }}"
     force: true
-
-- name: "symlink borders config"
+# symlink borders directory
+- name: "symlink - borders directory"
   file:
-    src: "bordersrc"
-    dest: "{{ ansible_env.HOME }}/.config/borders/bordersrc"
+    src: "{{ role_path }}/files/borders"
+    dest: "{{ H_XDG_CONFIG_HOME }}/borders"
     state: link
-    follow: false
-    mode: "0600"
-    owner: "{{ ansible_env.USER }}"
     force: true
