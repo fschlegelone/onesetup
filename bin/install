@@ -98,6 +98,9 @@ function pre_install() {
   # ensure git is installed
   command -v git &> /dev/null && echo -e "${I_OK}already installed ==> git" || (brew install --quiet git && echo -e "${I_DONE}installed ==> git (brew version)")
 
+  # ensure gnu chmod & chown (coreutils) is installed
+  [ -d "/opt/homebrew/opt/coreutils" ] && echo -e "${I_OK}already installed ==> gnu coreutils" || (brew install --quiet coreutils && echo -e "${I_DONE}gnu coreutils")
+  
   # ensure ansible is installed
   command -v ansible &> /dev/null && echo -e "${I_OK}already installed ==> ansible" || (brew install --quiet ansible && echo -e "${I_DONE}installed ==> ansible")
 }
@@ -113,20 +116,20 @@ function install() {
 
   # -- PERMISSIONS & OWNERSHIP -- #
   # set ownership
-  sudo chown -R "$USER" "$ONESETUP" && echo -e "${I_DONE}onesetup ==> ownership set" || { echo -e "${I_ERR}onesetup ==> failed to set ownership" && exit 1; }
+  sudo gchown -R "$USER" "$ONESETUP" && echo -e "${I_DONE}onesetup ==> ownership set" || { echo -e "${I_ERR}onesetup ==> failed to set ownership" && exit 1; }
   # set permissions
-  sudo chmod -R 700 "${ONESETUP}/bin" && \
-  sudo chmod 644 "${ONESETUP}/ansible.cfg" && \
-  sudo chmod 644 "${ONESETUP}/inventory.ini" && \
-  sudo chmod 644 "${ONESETUP}/main.yml" && \
-  sudo chmod 644 "${ONESETUP}/requirements.yml" && \
-  sudo chmod 644 "${ONESETUP}/.gitignore" && \
-  sudo chmod 755 "${ONESETUP}/.yamllint" && \
-  sudo chmod 444 "${ONESETUP}/LICENSE" && \
-  sudo chmod 444 "${ONESETUP}/README.md" && \
-  find "$ONESETUP/group_vars" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
-  find "$ONESETUP/pre_tasks" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
-  find "$ONESETUP/roles" -type f -name "*.yml" -exec sudo chmod 644 {} \; && \
+  sudo gchmod -R 700 "${ONESETUP}/bin" && \
+  sudo gchmod 644 "${ONESETUP}/ansible.cfg" && \
+  sudo gchmod 644 "${ONESETUP}/inventory.ini" && \
+  sudo gchmod 644 "${ONESETUP}/main.yml" && \
+  sudo gchmod 644 "${ONESETUP}/requirements.yml" && \
+  sudo gchmod 644 "${ONESETUP}/.gitignore" && \
+  sudo gchmod 755 "${ONESETUP}/.yamllint" && \
+  sudo gchmod 444 "${ONESETUP}/LICENSE" && \
+  sudo gchmod 444 "${ONESETUP}/README.md" && \
+  find "$ONESETUP/group_vars" -type f -name "*.yml" -exec sudo gchmod 644 {} \; && \
+  find "$ONESETUP/pre_tasks" -type f -name "*.yml" -exec sudo gchmod 644 {} \; && \
+  find "$ONESETUP/roles" -type f -name "*.yml" -exec sudo gchmod 644 {} \; && \
   echo -e "${I_DONE}onesetup ==> permissions set" || { echo -e "${I_ERR}onesetup ==> failed to set permissions" && exit 1; }
 
   # -- ONESETUP BINARY -- #
@@ -137,7 +140,7 @@ function install() {
   # ensure target bin directory exists (/usr/local/bin)
   [ -d "/usr/local/bin" ] && echo -e "${I_OK} /usr/local/bin ==> exists" || { echo -e "${I_ERR} /usr/local/bin ==> doesn't exist" && sudo mkdir -p "/usr/local/bin" && echo -e "${I_DONE} /usr/local/bin ==> created"; }
   # copy onesetup binary to /usr/local/bin
-  sudo cp "${ONESETUP}/bin/onesetup" "/usr/local/bin/onesetup" && sudo chown "$USER" "/usr/local/bin/onesetup" && sudo chmod 755 "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary installed" || { echo -e "${I_ERR}onesetup ==> failed to install binary" && exit 1; }
+  sudo cp "${ONESETUP}/bin/onesetup" "/usr/local/bin/onesetup" && sudo gchown "$USER" "/usr/local/bin/onesetup" && sudo gchmod 755 "/usr/local/bin/onesetup" && echo -e "${I_DONE}onesetup ==> binary installed" || { echo -e "${I_ERR}onesetup ==> failed to install binary" && exit 1; }
 }
 
 
@@ -154,15 +157,15 @@ function check_installation() {
   # /opt/one/onesetup
   [ ! -d "${ONESETUP}" ] && onesetup_dir_exist="false" || onesetup_dir_exist="true"
   # -- PERMISSIONS -- #
-  sudo chown -R "${USER}" "/opt" && echo -e "${I_DONE}/opt ==> set ownership to $USER"
+  sudo gchown -R "${USER}" "/opt" && echo -e "${I_DONE}/opt ==> set ownership to $USER"
 
   # /opt/one/onevault/onesetup.secret
   if [ -f "${ONEVAULT}/onesetup.secret" ]; then
-    sudo chown "$USER" "${ONEVAULT}/onesetup.secret" && sudo chmod 600 "${ONEVAULT}/onesetup.secret"
+    sudo gchown "$USER" "${ONEVAULT}/onesetup.secret" && sudo gchmod 600 "${ONEVAULT}/onesetup.secret"
     echo -e "${I_OK}onesetup.secret ==> file exists"
     echo -e "${I_IMP}onesetup.secret ==> please make sure the ansible vault password is stored in this file"
   else
-    sudo touch "${ONEVAULT}/onesetup.secret" && sudo chown "$USER" "${ONEVAULT}/onesetup.secret" && sudo chmod 600 "${ONEVAULT}/onesetup.secret"
+    sudo touch "${ONEVAULT}/onesetup.secret" && sudo gchown "$USER" "${ONEVAULT}/onesetup.secret" && sudo gchmod 600 "${ONEVAULT}/onesetup.secret"
     echo -e "${I_DONE}onesetup.secret ==> file created"
     echo -e "${I_IMP}onesetup.secret ==> you need to store the ansible vault password in this file before executing the onesetup binary"
   fi
