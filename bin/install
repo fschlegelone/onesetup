@@ -150,7 +150,7 @@ function check_installation() {
   # /opt/one/onesetup
   [ -d "${ONESETUP}" ] && onesetup_dir_exist="true" || onesetup_dir_exist="false"
   # /opt/one/onevault
-  [ -d "${ONEVAULT}" ] && onevault_dir_exist="true" || onevault_dir_exist="false"
+  [ ! -d "${ONEVAULT}" ] && sudo mkdir "${ONEVAULT}" && echo -e "${I_DONE}onevault ==> directory created"
   # /opt/one/onevault/onesetup.secret
   if [ -f "${ONEVAULT}/onesetup.secret" ]; then
     sudo chown "$USER" "${ONEVAULT}/onesetup.secret" && sudo chmod 600 "${ONEVAULT}/onesetup.secret"
