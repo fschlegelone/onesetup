@@ -53,14 +53,16 @@
     state: absent
     path: "{{ H_HOME }}/.zshrc"
     force: true
+  become: true
 # zdotdir
 - name: "cleanup zsh_config_dir"
   ansible.builtin.file:
     state: absent
     path: "{{ H_ZDOTDIR }}"
     force: true
+  become: true
 
-# -- SYMLINK ZSH CONFIG FILES -- #
+# -- SYMLINK -- #
 # global profile
 - name: "symlink global profile"
   ansible.builtin.file:
@@ -101,6 +103,13 @@
     state: link
     follow: false
     force: true
-    owner: "{{ H_USER }}"
-    mode: "0644"
+  become: true
+
+# -- PERMISSIONS -- #
+- name: "permissions - zsh user config"
+  ansible.builtin.file:
+    path: "{{ H_XDG_CONFIG_HOME }}/zsh"
+    follow: true
+    mode: 0700
+    recurse: true
   become: true
