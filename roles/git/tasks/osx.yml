@@ -12,25 +12,27 @@
   ansible.builtin.file:
     path: "{{ H_HOME }}/.gitconfig"
     state: absent
-    force:true
+    force: true
   become: true
 
 # -- SYMLINK -- #
 # gitconfig
 - name: "symlink gitconfig"
-  file:
+  ansible.builtin.file:
     src: "{{ role_path }}/files/gitconfig"
     dest: "{{ H_HOME }}/.gitconfig"
     state: link
+    follow: false
     force: true
     mode: "0644"
     owner: "{{ H_USER }}"
 # lazygit config dir
 - name: "symlink lazygit config"
-  file:
-    src: "{{ role_path }}/files/lazygit/config.yml"
-    dest: "{{ H_XDG_CONFIG_HOME }}/lazygit/config.yml"
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/lazygit"
+    dest: "{{ H_XDG_CONFIG_HOME }}/lazygit"
     state: link
+    follow: false
     force: true
     mode: "0600"
     owner: "{{ H_USER }}"
