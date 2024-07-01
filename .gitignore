@@ -7,3 +7,4 @@ onesetup.secret
 .env.dev
 .env.prod
 .nvimlog
+.zsh_history
