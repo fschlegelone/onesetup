@@ -183,7 +183,7 @@ function post_install() {
   [ "$restore_git" == "true" ] && git config --global "url.git@github.com:.insteadOf" "https://github.com/" && echo -e "${I_DONE}restored ==> git authentication over ssh"
   
   # cleanup global shell profile
-  [ -f "${ONESETUP}/roles/zsh/files/global_config/profile"] && [ -f "/etc/profile" ] && sudo rm -f "/etc/profile" && echo -e "${I_DONE}/etc/profile ==> cleanup"
+  [ -f "${ONESETUP}/roles/zsh/files/global_config/profile" ] && [ -f "/etc/profile" ] && sudo rm -f "/etc/profile" && echo -e "${I_DONE}/etc/profile ==> cleanup"
   # copy global shell profile (/etc/profile)
   sudo cp "${ONESETUP}/roles/zsh/files/global_config/profile" "/etc/profile" && echo -e "${I_DONE}/etc/profile ==> install"
 
