@@ -18,27 +18,7 @@
   ansible.builtin.file:
     path: "{{ H_XDG_CONFIG_HOME }}/nvim"
     state: directory
-    mode: 0600
+    mode: 0700
+    owner: "{{ H_USER }}"
     recurse: true
-    follow: true
-- name: "set permissions - /nvim"
-  ansible.builtin.file:
-    path: "{{ H_XDG_CONFIG_HOME }}/nvim"
-    state: directory
-    mode: 0700
-    recurse: false
-    follow: true
-- name: "set permissions - /nvim/lua"
-  ansible.builtin.file:
-    path: "{{ H_XDG_CONFIG_HOME }}/nvim/lua"
-    state: directory
-    mode: 0700
-    recurse: false
-    follow: true
-- name: "set permissions - /nvim/lua/plugins"
-  ansible.builtin.file:
-    path: "{{ H_XDG_CONFIG_HOME }}/nvim/lua/plugins"
-    state: directory
-    mode: 0700
-    recurse: false
     follow: true
