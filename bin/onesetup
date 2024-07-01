@@ -30,6 +30,7 @@ run_playbook() {
   # initialize homebrew
   eval "$(/opt/homebrew/bin/brew shellenv)"
   # run ansible playbook
-  ansible-playbook "${ONESETUP}/main.yml" --ask-become-pass --vault-password-file "${ONEVAULT}/onesetup.secret" && echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
+  ansible-playbook "${ONESETUP}/main.yml" --ask-become-pass --vault-password-file="${ONEVAULT}/onesetup.secret" && \
+  echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
 }
 run_playbook

@@ -148,9 +148,19 @@ function check_installation() {
 
   # -- CHECK DIRECTORIES -- #
   # /opt/one/onesetup
-  [ -d "$ONESETUP" ] && onesetup_dir_exist="true" || onesetup_dir_exist="false"
+  [ -d "${ONESETUP}" ] && onesetup_dir_exist="true" || onesetup_dir_exist="false"
   # /opt/one/onevault
-  [ -d "$ONEVAULT" ] && onevault_dir_exist="true" || onevault_dir_exist="false"
+  [ -d "${ONEVAULT}" ] && onevault_dir_exist="true" || onevault_dir_exist="false"
+  # /opt/one/onevault/onesetup.secret
+  if [ -f "${ONEVAULT}/onesetup.secret" ]; then
+    sudo chown "$USER" "${ONEVAULT}/onesetup.secret" && sudo chmod 600 "${ONEVAULT}/onesetup.secret"
+    echo -e "${I_OK}onesetup.secret ==> file exists"
+    echo -e "${I_IMP}onesetup.secret ==> please make sure the ansible vault password is stored in this file"
+  else
+    sudo touch "${ONEVAULT}/onesetup.secret" && sudo chown "$USER" "${ONEVAULT}/onesetup.secret" && sudo chmod 600 "${ONEVAULT}/onesetup.secret"
+    echo -e "${I_DONE}onesetup.secret ==> file created"
+    echo -e "${I_IMP}onesetup.secret ==> you need to store the ansible vault password in this file before executing the onesetup binary"
+  fi
   # prompt user to overwrite onesetup installation
   [ "$onesetup_dir_exist" == "true" ] && { echo -e "${I_WAR}onesetup ==> directory already exists"; initial_install="false"; } \
   || { echo -e "${I_OK}onesetup ==> directory does not exist yet. installation will continue"; initial_install="true"; }
