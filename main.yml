@@ -48,12 +48,13 @@
       when: ansible_os_family == "RedHat"
 
   tasks:
-
+  # -- INCLUDE ROLES -- #
+  # order of the roles is important (e.g: environment variables need to be set by zsh role before other roles use them)
   roles:
-    - { role: git, tags: ["git"] }
-    - { role: apps, tags: ["apps"] }
-    - { role: ssh, tags: ["ssh"] }
     - { role: zsh, tags: ["zsh"] }
+    - { role: apps, tags: ["apps"] }
+    - { role: git, tags: ["git"] }
+    - { role: ssh, tags: ["ssh"] }
     - { role: alacritty, tags: ["alacritty"] }
     - { role: nvim, tags: ["nvim"] }
     - { role: starship, tags: ["starship"] }

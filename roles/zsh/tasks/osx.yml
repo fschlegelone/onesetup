@@ -7,6 +7,13 @@
   become: true
 
 # -- CLEANUP -- #
+# global profile
+- name: "cleanup global profile"
+  ansible.builtin.file:
+    state: absent
+    path: "/etc/profile"
+    force: true
+  become: true
 # global zshenv
 - name: "cleanup global zshenv"
   ansible.builtin.file:
@@ -30,19 +37,19 @@
   become: true
 # ~/.zshenv
 - name: "cleanup ~/.zshenv"
-  ansible.builtin.file: 
+  ansible.builtin.file:
     state: absent
     path: "{{ H_HOME }}/.zshenv"
     force: true
 # ~/.zprofile
 - name: "cleanup ~/.zprofile"
-  ansible.builtin.file: 
+  ansible.builtin.file:
     state: absent
     path: "{{ H_HOME }}/.zprofile"
     force: true
 # ~/.zshrc
 - name: "cleanup ~/.zshrc"
-  ansible.builtin.file: 
+  ansible.builtin.file:
     state: absent
     path: "{{ H_HOME }}/.zshrc"
     force: true
@@ -54,6 +61,14 @@
     force: true
 
 # -- SYMLINK ZSH CONFIG FILES -- #
+# global profile
+- name: "symlink global profile"
+  ansible.builtin.file:
+    state: link
+    src: "{{ role_path }}/files/global_config/profile"
+    dest: "/etc/profile"
+    force: true
+  become: true
 # global zshenv
 - name: "symlink global zshenv"
   ansible.builtin.file:
