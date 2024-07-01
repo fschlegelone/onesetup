@@ -1,0 +1,90 @@
+---
+# -- SET DEFAULT SHELL -- #
+- name: "set default shell to zsh"
+  ansible.builtin.user:
+    name: "{{ H_USER }}"
+    shell: "/opt/homebrew/bin/zsh"
+  become: true
+
+# -- CLEANUP -- #
+# global zshenv
+- name: "cleanup global zshenv"
+  ansible.builtin.file:
+    state: absent
+    path: "/etc/zshenv"
+    force: true
+  become: true
+# global zprofile
+- name: "cleanup global zprofile"
+  ansible.builtin.file:
+    state: absent
+    path: "/etc/zprofile"
+    force: true
+  become: true
+# global zshrc
+- name: "cleanup global zshrc"
+  ansible.builtin.file:
+    state: absent
+    path: "/etc/zshrc"
+    force: true
+  become: true
+# ~/.zshenv
+- name: "cleanup ~/.zshenv"
+  ansible.builtin.file: 
+    state: absent
+    path: "{{ H_HOME }}/.zshenv"
+    force: true
+# ~/.zprofile
+- name: "cleanup ~/.zprofile"
+  ansible.builtin.file: 
+    state: absent
+    path: "{{ H_HOME }}/.zprofile"
+    force: true
+# ~/.zshrc
+- name: "cleanup ~/.zshrc"
+  ansible.builtin.file: 
+    state: absent
+    path: "{{ H_HOME }}/.zshrc"
+    force: true
+# zdotdir
+- name: "cleanup zsh_config_dir"
+  ansible.builtin.file:
+    state: absent
+    path: "{{ ansible_env.ZDOTDIR | default(ansible_env.HOME + '/.config/zsh') }}"
+    force: true
+
+# -- SYMLINK ZSH CONFIG FILES -- #
+# global zshenv
+- name: "symlink global zshenv"
+  ansible.builtin.file:
+    state: link
+    src: "{{ role_path }}/files/global_config/zshenv"
+    dest: "/etc/zshenv"
+    force: true
+  become: true
+# global zprofile
+- name: "symlink global zprofile"
+  ansible.builtin.file:
+    state: link
+    src: "{{ role_path }}/files/global_config/zprofile"
+    dest: "/etc/zprofile"
+    force: true
+  become: true
+# global zshrc
+- name: "symlink global zshrc"
+  ansible.builtin.file:
+    state: link
+    src: "{{ role_path }}/files/global_config/zshrc"
+    dest: "/etc/zshrc"
+    force: true
+  become: true
+# zdotdir
+- name: "symlik zsh user config"
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/user_config"
+    dest: "{{ H_HOME }}/.config/zsh"
+    state: link
+    follow: false
+    force: true
+    owner: "{{ H_USER }}"
+    mode: "0644"

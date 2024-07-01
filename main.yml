@@ -53,7 +53,7 @@
     - { role: git, tags: ["git"] }
     - { role: apps, tags: ["apps"] }
     - { role: ssh, tags: ["ssh"] }
-    - { role: shell, tags: ["shell"] }
+    - { role: zsh, tags: ["zsh"] }
     - { role: alacritty, tags: ["alacritty"] }
     - { role: nvim, tags: ["nvim"] }
     - { role: starship, tags: ["starship"] }
