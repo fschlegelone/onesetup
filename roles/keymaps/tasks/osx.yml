@@ -1,0 +1,25 @@
+---
+# -- CLEANUP -- #
+# cleanup skhd directory
+- name: "cleanup - skhd directory"
+  ansible.builtin.file:
+    path: "{{ H_XDG_CONFIG_HOME }}/skhd"
+    state: absent
+    force: true
+
+# -- SYMLINK -- #
+# symlink skhd directory
+- name: "symlink skhd directory"
+  ansible.builtin.file:
+    src: "{{ role_path }}/files/skhd"
+    path: "{{ H_XDG_CONFIG_HOME }}/skhd"
+    state: link
+
+# -- PERMISSIONS -- #
+# permissions skhd directory
+- name: "set permissions - skhd directory"
+  ansible.builtin.file:
+    path: "{{ H_XDG_CONFIG_HOME }}/skhd"
+    owner: "{{ H_USER }}"
+    mode: 0700
+    follow: true
