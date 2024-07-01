@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail # exit on error, undefined variables, and failed commands in pipes
+set -euo pipefail # exit on error, undefined variables and failed commands in pipes
 
 # -- VARIABLES -- #
 # colors
@@ -24,35 +24,13 @@ export ONEVAULT="${ONE}/onevault"
 export ANSIBLE_INVENTORY="${ONESETUP}/inventory.ini"
 export ANSIBLE_CONFIG="${ONESETUP}/ansible.cfg"
 
-# -- FUNCTIONS -- #
+# -- ANSIBLE PLAYBOOK -- #
 run_playbook() {
-  local skip_tags="${1:-}"
   echo -e "${I_GO} onesetup ==> running ansible playbook"
   # initialize homebrew
   eval "$(/opt/homebrew/bin/brew shellenv)"
-  # run ansible playbook with optional --skip-tags
-  if [ -n "$skip_tags" ]; then
-    ansible-playbook "${ONESETUP}/main.yml" --ask-become-pass --vault-password-file="${ONEVAULT}/onesetup.secret" --skip-tags "$skip_tags" && \
-    echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
-  else
-    ansible-playbook "${ONESETUP}/main.yml" --ask-become-pass --vault-password-file="${ONEVAULT}/onesetup.secret" && \
-    echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
-  fi
+  # run ansible playbook
+  ansible-playbook "${ONESETUP}/main.yml" --ask-become-pass --vault-password-file="${ONEVAULT}/onesetup.secret" && \
+  echo -e "${I_DONE} onesetup ==> ansible playbook finished" || echo -e "${I_ERR} onesetup ==> ansible playbook failed"
 }
-
-# -- MAIN -- #
-skip_tags=""
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --skip)
-      skip_tags="$2"
-      shift 2
-      ;;
-    *)
-      echo -e "${I_ERR} Unknown option: $1"
-      exit 1
-      ;;
-  esac
-done
-
-run_playbook "$skip_tags"
+run_playbook
