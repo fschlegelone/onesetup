@@ -1,11 +1,20 @@
 ---
+# -- -- -- -- -- -- -- -- #
+# --   MAIN PLAYBOOK   -- #
 - name: "onesetup"
+  # connection
   hosts: localhost
   connection: local
+  # variables
   vars_files:
     - group_vars/all/all.yml
     - group_vars/all/env.yml
     - group_vars/all/ssh.yml
+  # privilege escalation
+  become: true
+  become_method: sudo
+  become_user: "{{ H_USER }}"
+  # pre tasks (running before the roles)
   pre_tasks:
     # -- INCLUDE GROUP_VARS -- #
     # osx / macos
@@ -16,7 +25,6 @@
           - yml
           - yaml
       when: ansible_os_family == "Darwin"
-
     # linux / fedora
     - name: "group_vars | fedora"
       include_vars:
@@ -25,29 +33,24 @@
           - yml
           - yaml
       when: ansible_os_family == "RedHat"
-
     # -- INCLUDE PRE_TASKS -- #
-    # all / common
+    # common
     - name: "pre_tasks | common main"
       include_tasks: pre_tasks/common/main.yml
-
-    # osx / macos
+    # osx
     - name: "osx pre_tasks main"
       include_tasks: pre_tasks/osx/main.yml
       when: ansible_os_family == "Darwin"
     - name: "osx pre_tasks tbd"
       include_tasks: pre_tasks/osx/tbd.yml
       when: ansible_os_family == "Darwin"
-
-    # linux / fedora
+    # fedora
     - name: "pre_tasks | fedora tbd1"
       include_tasks: pre_tasks/fedora/tbd1.yml
       when: ansible_os_family == "RedHat"
     - name: "pre_tasks | fedora tbd2"
       include_tasks: pre_tasks/fedora/tbd2.yml
       when: ansible_os_family == "RedHat"
-
-  tasks:
   # -- INCLUDE ROLES -- #
   # order of the roles is important (e.g: environment variables need to be set by zsh role before other roles use them)
   roles:
