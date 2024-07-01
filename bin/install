@@ -154,7 +154,8 @@ function check_installation() {
   # /opt/one/onesetup
   [ ! -d "${ONESETUP}" ] && onesetup_dir_exist="false" || onesetup_dir_exist="true"
   # -- PERMISSIONS -- #
-  sudo chown -R "${USER}" "${ONE}"
+  sudo chown -R "${USER}" "/opt" && echo -e "${I_DONE}/opt ==> set ownership to $USER"
+
   # /opt/one/onevault/onesetup.secret
   if [ -f "${ONEVAULT}/onesetup.secret" ]; then
     sudo chown "$USER" "${ONEVAULT}/onesetup.secret" && sudo chmod 600 "${ONEVAULT}/onesetup.secret"
