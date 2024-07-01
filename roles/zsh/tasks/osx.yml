@@ -110,6 +110,7 @@
   ansible.builtin.file:
     path: "{{ H_XDG_CONFIG_HOME }}/zsh"
     follow: true
-    mode: 0700
+    mode: 0744
+    owner: "{{ H_USER }}"
     recurse: true
   become: true
